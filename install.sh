@@ -69,6 +69,14 @@ nixos-install --flake "$REPO_DIR#$NIXSYSTEM"
 echo "$NIXUSER:$NIXPASS" | chroot /mnt chpasswd
 echo "root:$NIXPASS" | chroot /mnt chpasswd
 
-# 8. Done
-printf "\nInstall complete! Rebooting...\n"
+# Copy utils folder to /usr/local/share/utils after install
+cp -r "$REPO_DIR/utils" "/mnt/usr/local/share/utils"
+# Symlink Setup.desktop to user's Desktop for convenience
+mkdir -p "/mnt/home/$NIXUSER/Desktop"
+ln -sf "/usr/local/share/utils/Setup.desktop" "/mnt/home/$NIXUSER/Desktop/Setup.desktop"
+chown -h $NIXUSER:users "/mnt/home/$NIXUSER/Desktop/Setup.desktop"
+
+# Prompt to remove install media before reboot
+echo "Installation complete! Please remove the install media before rebooting."
+read -p "Press Enter to reboot..."
 reboot

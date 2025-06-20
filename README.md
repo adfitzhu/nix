@@ -11,9 +11,9 @@ This guide will help you install NixOS using this flake-based configuration, ful
 ### Step 1: Prepare the Live Environment
 - Boot the target machine with the latest NixOS installer ISO (graphical or minimal).
 - **If using the minimal (command-line) ISO:**
-  - Open a shell with git available:
+  - Open a shell with git and jq available:
     ```sh
-    nix-shell -p git
+    nix-shell -p git jq
     ```
   - Connect to WiFi using:
     ```sh
@@ -21,7 +21,7 @@ This guide will help you install NixOS using this flake-based configuration, ful
     ```
 - **If using the graphical ISO:**
   - Connect to WiFi using the network applet in the system tray.
-  - Open a terminal (git is already installed).
+  - Open a terminal (git and jq are already installed).
 
 ### Step 2: Clone this repository to the correct location
 ```sh
@@ -44,15 +44,14 @@ sh install.sh
 ### Step 5: Wait for the script to finish
 - The script will partition and format the drive, generate hardware config, set up user and hostname, install NixOS, set your user and root password, and reboot.
 
+### Step 6: Run the Setup script on your Desktop
+- After rebooting and logging in, double-click the **Setup** icon on your Desktop to complete extra configuration (such as Tailscale setup and more).
+
 ### Notes
 - **All data on the selected drive will be erased.**
 - The script expects a valid `disko-config.nix` in the repo root for partitioning.
 - If you want to customize packages or services, edit the flake files before running the installer.
 - After reboot, log in with the username and password you set during installation. The root password will be the same as the user password (you can change it later).
-
-### Troubleshooting
-- If the script fails, check the output for errors and ensure your network connection is working.
-- You can re-run the script after fixing any issues.
 
 ---
 

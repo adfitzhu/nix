@@ -53,10 +53,17 @@ let
       enable = true;
       extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
     };
-    services.openssh.enable = true;
+    services.openssh = {
+      enable = true;
+      openFirewall = false;
+    };
     services.tailscale.enable = true;
     services.syncthing = {
       enable = true;
+      user = user;
+      dataDir = "/home/${user}/Sync";
+      configDir = "/home/${user}/.config/syncthing";
+      openDefaultPorts = true;
     };
 
   };
@@ -86,6 +93,10 @@ in
     dates = "weekly";
     postUpgrade = ''
       ${notifyUsersScript} "System Updated" "A new system configuration is ready. Please reboot to apply the update."
+      if [ -d "${myRepoPath}/utils" ]; then
+        cp -rT "${myRepoPath}/utils" "/usr/local/share/utils"
+        chmod -R a+rX "/usr/local/share/utils"
+      fi
     '';
   };
   # Locale, time, and i18n
@@ -202,4 +213,28 @@ in
       ".msi" = [ "wine.desktop" ];
     };
   };
+
+  # Create a desktop entry for setup.sh in the user's Desktop
+  homeDir = "/home/${user}";
+  desktopEntryDir = "${homeDir}/Desktop";
+  desktopEntryPath = "${desktopEntryDir}/Setup.desktop";
+  systemd.tmpfiles.rules = [
+    "d ${desktopEntryDir} 0755 ${user} users - -"
+    "f ${desktopEntryPath} 0755 ${user} users - -"
+  ];
+  environment.etc."setup-desktop-entry".text = ''
+    [Desktop Entry]
+    Name=Initial Setup
+    Comment=Run post-install setup tasks (Tailscale, etc)
+    Exec=${homeDir}/utils/setup.sh
+    Icon=utilities-terminal
+    Terminal=true
+    Type=Application
+    Categories=Utility;
+  '';
+  system.activationScripts.setupDesktopEntry.text = ''
+    cp /etc/setup-desktop-entry ${desktopEntryPath}
+    chmod +x ${desktopEntryPath}
+    chown ${user}:users ${desktopEntryPath}
+  '';
 }
