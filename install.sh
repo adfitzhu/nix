@@ -1,6 +1,20 @@
 #!/bin/sh
 set -eu
 
+# Enable experimental Nix features for flakes and nix-command
+export NIX_CONFIG="experimental-features = nix-command flakes"
+
+# If jq is not available, and nix-shell is present, enter a shell with jq and git and re-exec the script
+if ! command -v jq >/dev/null 2>&1; then
+  if command -v nix-shell >/dev/null 2>&1; then
+    echo "jq not found. Re-executing in a nix-shell with jq and git..."
+    exec nix-shell -p git jq --run "sh $0 $@"
+  else
+    echo "Error: jq is required but not found, and nix-shell is not available. Aborting." >&2
+    exit 1
+  fi
+fi
+
 # NixOS Flake Automated Installer
 # This script will:
 # 1. Prompt for system config, user, password, hostname, and drive
@@ -11,35 +25,52 @@ set -eu
 # 6. Set user password
 # 7. Reboot
 
-REPO_URL="https://github.com/adfitzhu/nix"
+REPO_URL="github:adfitzhu/nix"
 REPO_DIR="/mnt/etc/nixos"
 DISKO_CONFIG="/tmp/disko-config.nix"
 
 # 1. Prompt for system config, user, password, hostname, and drive
-FLAKE_REF="$REPO_URL"
-echo "\nStep 1: Available system configurations in flake:"
-FLAKE_SYSTEMS=($(nix flake show --json "$FLAKE_REF" | jq -r '.nixosConfigurations | keys[]'))
-for i in "${!FLAKE_SYSTEMS[@]}"; do
-  echo "$((i+1)). ${FLAKE_SYSTEMS[$i]}"
+echo ""
+echo "Step 1: Available system configurations in flake:"
+# Hardcoded list of user-facing system configs and their flake paths
+USER_CONFIGS=(
+  "Gaming|x86_64-linux#gaming"
+  "Desktop|x86_64-linux#desktop"
+  "Laptop|x86_64-linux#laptop"
+)
+
+for i in "${!USER_CONFIGS[@]}"; do
+  NAME="${USER_CONFIGS[$i]%%|*}"
+  echo "$((i+1)). $NAME"
 done
 read -rp "Step 1: Enter the number of the system config to use: " NIXSYSTEM_NUM
-NIXSYSTEM="${FLAKE_SYSTEMS[$((NIXSYSTEM_NUM-1))]}"
+NIXSYSTEM_PATH="${USER_CONFIGS[$((NIXSYSTEM_NUM-1))]}"
+NIXSYSTEM="${NIXSYSTEM_PATH#*|}"
 
-read -rp "\nStep 2: Enter desired username: " NIXUSER
+echo ""
+read -rp "Step 2: Enter desired username: " NIXUSER
+echo ""
 read -rsp "Step 3: Enter password for $NIXUSER: " NIXPASS; echo
 read -rp "Step 4: Enter desired hostname: " NIXHOST
+echo ""
 
 # Numbered menu for drive selection
+echo "Step 5: Block devices (detailed):"
+lsblk -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,MODEL,SERIAL,UUID,PATH
 DEVICES=($(lsblk -dpno NAME | grep -v loop))
-echo "\nStep 5: Available devices:"
+
+echo ""
+echo "Step 5: Available devices:"
 for i in "${!DEVICES[@]}"; do
-  echo "$((i+1)). ${DEVICES[$i]}"
+  DEVINFO=$(lsblk -d -o NAME,SIZE,MODEL,SERIAL,PATH --noheadings "${DEVICES[$i]}")
+  echo "$((i+1)). $DEVINFO"
 done
 read -rp "Step 5: Enter the number of the device to use: " DEVNUM
 DRIVE="${DEVICES[$((DEVNUM-1))]}"
 
+echo ""
 # Confirm drive erase
-read -rp "\nStep 6: WARNING: All data on $DRIVE will be erased. Continue? (yes/no): " CONFIRM
+read -rp "Step 6: WARNING: All data on $DRIVE will be erased. Continue? (yes/no): " CONFIRM
 [ "$CONFIRM" = "yes" ] || { echo "Aborted."; exit 1; }
 
 # 3. Partition and format using disko

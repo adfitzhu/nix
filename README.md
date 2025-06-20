@@ -9,19 +9,9 @@
 This guide will help you install NixOS using this flake-based configuration, fully automated with `install.sh`.
 
 ### Step 1: Prepare the Live Environment
-- Boot the target machine with the latest NixOS installer ISO (graphical or minimal).
-- **If using the minimal (command-line) ISO:**
-  - Open a shell with git and jq available:
-    ```sh
-    nix-shell -p git jq
-    ```
-  - Connect to WiFi using:
-    ```sh
-    nmtui
-    ```
-- **If using the graphical ISO:**
-  - Connect to WiFi using the network applet in the system tray.
-  - Open a terminal (git and jq are already installed).
+- Boot the target machine with the latest NixOS **graphical installer ISO**.
+- Connect to WiFi using the network applet in the system tray.
+- Open a terminal.
 
 ### Step 2: Clone this repository to the correct location
 ```sh
