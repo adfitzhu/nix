@@ -1,4 +1,5 @@
-<!-- Inspired by https://github.com/mkellyxp/nixbook: I liked the idea of the nixbook but wanted to make my own version using KDE and some specific apps for my users' needs. -->
+> **Inspiration:** This project was inspired by [nixbook](https://github.com/mkellyxp/nixbook). I liked the idea of the nixbook but wanted to make my own version using KDE and some specific apps for my users' needs.
+
 # nix
 
 > **Note:** You must run `install.sh` as root. On the NixOS live ISO, you are already root by default, so you do not need to use `sudo` or enter a password.
