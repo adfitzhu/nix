@@ -6,3 +6,6 @@ echo "Starting Tailscale..."
 sudo tailscale up
 
 echo "Tailscale command issued. Follow prompts in your browser if needed."
+
+# Symlink Update.desktop to user's Desktop for manual update access
+ln -sf "/usr/local/share/utils/Update.desktop" "$HOME/Desktop/Update.desktop"

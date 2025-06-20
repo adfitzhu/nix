@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Manual System Update
+Comment=Manually trigger a NixOS system update
+Exec=/usr/local/share/utils/update.sh
+Icon=system-software-update
+Terminal=true
+Type=Application
+Categories=Utility;
