@@ -8,39 +8,41 @@
 
 This guide will help you install NixOS using this flake-based configuration, fully automated with `install.sh`.
 
-### Prerequisites
+### Step 1: Prepare the Live Environment
 - Boot the target machine with the latest NixOS installer ISO (graphical or minimal).
-- Connect to WiFi using the graphical network applet, or if on the command line, use `nmtui`:
-  ```sh
-  nmtui
-  ```
-- Open a terminal and install git:
-  ```sh
-  nix-shell -p git
-  ```
+- **If using the minimal (command-line) ISO:**
+  - Open a shell with git available:
+    ```sh
+    nix-shell -p git
+    ```
+  - Connect to WiFi using:
+    ```sh
+    nmtui
+    ```
+- **If using the graphical ISO:**
+  - Connect to WiFi using the network applet in the system tray.
+  - Open a terminal (git is already installed).
 
-### Installation Steps
+### Step 2: Clone this repository to the correct location
+```sh
+git clone https://github.com/adfitzhu/nix /mnt/etc/nixos
+cd /mnt/etc/nixos
+```
+> **Note:** The installer expects the repo to be at `/mnt/etc/nixos` so it can find `install.sh` and all config files.
 
-1. **Clone this repository to the correct location:**
-   ```sh
-   git clone https://github.com/adfitzhu/nix /mnt/etc/nixos
-   cd /mnt/etc/nixos
-   ```
-   > **Note:** The installer expects the repo to be at `/mnt/etc/nixos` so it can find `install.sh` and all config files.
+### Step 3: Run the installer
+```sh
+sh install.sh
+```
 
-2. **Run the installer:**
-   ```sh
-   sh install.sh
-   ```
+### Step 4: Follow the prompts
+- Select the system configuration you want to use (e.g., `gaming`, `laptop`) from a numbered menu.
+- Enter your desired username, password, and hostname.
+- Select the target drive from a numbered menu (e.g., `/dev/sda`).
+- Confirm that you want to erase the selected drive.
 
-3. **Follow the prompts:**
-   - Select the system configuration you want to use (e.g., `gaming`, `server`) from a numbered menu.
-   - Enter your desired username, password, and hostname.
-   - Select the target drive from a numbered menu (e.g., `/dev/sda`).
-   - Confirm that you want to erase the selected drive.
-
-4. **Wait for the script to finish:**
-   - The script will partition and format the drive, generate hardware config, set up user and hostname, install NixOS, set your user and root password, and reboot.
+### Step 5: Wait for the script to finish
+- The script will partition and format the drive, generate hardware config, set up user and hostname, install NixOS, set your user and root password, and reboot.
 
 ### Notes
 - **All data on the selected drive will be erased.**
