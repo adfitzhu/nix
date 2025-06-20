@@ -1,8 +1,8 @@
 {
-  description = "NixOS install with Btrfs subvolumes and disko";
+  description = "NixOS install for non-tech users with auto updating and initial set of software";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     disko.url = "github:nix-community/disko";
     flake-utils.url = "github:numtide/flake-utils";
   };
@@ -18,30 +18,25 @@
       in
       {
         nixosConfigurations = {
-          gamer-desktop = nixpkgs.lib.nixosSystem {
+          gaming = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               (hostConfig {
-                hostname = "gamer-desktop";
-                user = "gamer";
                 swapSize = "8GiB";
-                autoUpgradeFlake = "github:adfitzhu/nix#gamer-desktop";
+                autoUpgradeFlake = "github:adfitzhu/nix#gaming";
                 extraPackages = with pkgs; [
-                  libreoffice
-                  vlc
+                  git
+                  vscode
+                  clonehero
                 ];
                 initialFlatpaks = [
                   "com.obsproject.Studio"
-                  "org.audacityteam.Audacity"
-                  "org.kde.audiotube"
                   "org.kde.kdenlive"
-                  "org.clementine_player.Clementine"
                   "fr.handbrake.ghb"
                   "com.makemkv.MakeMKV"
                   "io.github.JaGoli.ytdl_gui"
-                  "io.freetubeapp.FreeTube"
-                  "org.kde.audiotube"
                   "com.usebottles.bottles"
+                  "com.heroicgameslauncher.hgl"
                   "com.nextcloud.desktopclient"
                   "org.kde.skanpage"
                   "net.supertuxkart.SuperTuxKart"
@@ -49,27 +44,24 @@
                 extraServices = {
                   services.sunshine.enable = true;
                 };
+                virtualisation.waydroid.enable = true;
               })
               disko.nixosModules.disko
               { disko.devices = diskoConfig { swapSize = "8GiB"; device = "/dev/sda"; }; }
             ];
           };
-          user-desktop = nixpkgs.lib.nixosSystem {
+          desktop = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               (hostConfig {
-                hostname = "user-desktop";
-                user = "user";
                 swapSize = "4GiB";
-                autoUpgradeFlake = "github:adfitzhu/nix#user-desktop";
+                autoUpgradeFlake = "github:adfitzhu/nix#desktop";
                 extraPackages = with pkgs; [
                   libreoffice
                   vlc
                 ];
                 initialFlatpaks = [
                   "com.obsproject.Studio"
-                  "org.audacityteam.Audacity"
-                  "org.kde.audiotube"
                 ];
                 extraServices = {
                   services.sunshine.enable = true;
@@ -79,22 +71,21 @@
               { disko.devices = diskoConfig { swapSize = "4GiB"; device = "/dev/sda"; }; }
             ];
           };
-          user-laptop = nixpkgs.lib.nixosSystem {
+          laptop = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               (hostConfig {
-                hostname = "user-laptop";
-                user = "user";
                 swapSize = "17GiB";
-                autoUpgradeFlake = "github:adfitzhu/nix#user-laptop";
+                autoUpgradeFlake = "github:adfitzhu/nix#laptop";
                 extraPackages = with pkgs; [
                   libreoffice
                   vlc
                 ];
                 initialFlatpaks = [
                   "com.obsproject.Studio"
-                  "org.audacityteam.Audacity"
-                  "org.kde.audiotube"
+                  "com.dev47apps.droidcam"
+                  "com.obsproject.Studio.Plugin.OBSVirtualCam"
+                  "jp.co.epson.EpsonScan2"
                 ];
                 extraServices = {
                   services.sunshine.enable = true;

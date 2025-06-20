@@ -1,25 +1,30 @@
 { hostname, user, swapSize, autoUpgradeFlake, extraPackages ? [], initialFlatpaks ? [
-  "com.obsproject.Studio"
   "org.audacityteam.Audacity"
   "org.kde.audiotube"
+  "org.clementine_player.Clementine"
+  "io.freetubeapp.FreeTube"
 ], staticIP ? null, extraServices ? {} }:
 { config, pkgs, ... }:
 let
   myRepoPath = "/etc/nixos-flake";
   myRepoUrl = "https://github.com/adfitzhu/nix";
-  nixChannel = "https://nixos.org/channels/nixos-25.05";
   basePackages = with pkgs; [
     kdePackages.kate
     kdePackages.discover
-    timeshift
     kdePackages.kdesu
-    clementine
     libreoffice
     vlc
-    git
-    vscode
+    p7zip
+    corefonts
+    vista-fonts
+    btrfs-progs
     libnotify
     flatpak
+    rustdesk
+    google-chrome
+    microsoft-edge
+    btrfs-assistant
+    wine
 
   ];
   allPackages = basePackages ++ extraPackages;
@@ -50,7 +55,10 @@ let
     };
     services.openssh.enable = true;
     services.tailscale.enable = true;
-    # sunshine intentionally omitted from base
+    services.syncthing = {
+      enable = true;
+    };
+
   };
   mergedServices = baseServices // extraServices;
 in
@@ -76,6 +84,9 @@ in
     flake = autoUpgradeFlake;
     allowReboot = false;
     dates = "weekly";
+    postUpgrade = ''
+      ${notifyUsersScript} "System Updated" "A new system configuration is ready. Please reboot to apply the update."
+    '';
   };
   # Locale, time, and i18n
   time.timeZone = "America/Los_Angeles";
@@ -131,10 +142,23 @@ in
       touch "$MARKER"
     '';
   };
+  # Enable automatic garbage collection to free disk space from old generations and unused packages
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+  };
   # Merge in base and extra services
   # (Nix will merge attrsets, so extraServices can override baseServices)
   # This must be at the top level
 } // mergedServices // {
+  # Application modules
+  programs.firefox.enable = true;
+  programs.thunderbird.enable = true;
+
+  # Allow unfree packages
+  nixpkgs.config.allowUnfree = true;
+
   notifyUsersScript = pkgs.writeScript "notify-users.sh" ''
     set -eu
     title="$1"
@@ -162,13 +186,20 @@ in
       git -C "${myRepoPath}" fetch --all
       git -C "${myRepoPath}" reset --hard origin/main
     fi
-    # Update Nix channel if needed
-    currentChannel=$(${pkgs.nix}/bin/nix-channel --list | ${pkgs.gnugrep}/bin/grep '^nixos' | ${pkgs.gawk}/bin/awk '{print $2}')
-    targetChannel="${nixChannel}";
-    if [ "$currentChannel" != "$targetChannel" ]; then
-      ${pkgs.nix}/bin/nix-channel --add "$targetChannel" nixos
-      ${pkgs.nix}/bin/nix-channel --update
-    fi
+    # Channel management removed; flakes handle Nixpkgs versioning.
   '';
   system.stateVersion = "25.05";
+
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "application/x-ms-dos-executable" = [ "wine.desktop" ];
+      "application/x-msdownload" = [ "wine.desktop" ];
+      "application/x-exe" = [ "wine.desktop" ];
+      "application/x-winexe" = [ "wine.desktop" ];
+      "application/x-msi" = [ "wine.desktop" ];
+      ".exe" = [ "wine.desktop" ];
+      ".msi" = [ "wine.desktop" ];
+    };
+  };
 }
