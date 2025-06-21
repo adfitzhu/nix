@@ -4,9 +4,12 @@ set -eu
 
 # 1. Unmount everything mounted by mount.sh
 umount -R /mnt/boot 2>/dev/null || true
-umount -R /mnt/home 2>/dev/null || true
+umount -R /mnt/@home 2>/dev/null || true
 umount -R /mnt/.snapshots 2>/dev/null || true
 umount -R /mnt 2>/dev/null || true
+
+# Ensure all mount points are removed for a clean start
+rm -rf /mnt/@home /mnt/.snapshots /mnt/boot /mnt/home
 
 # 2. Remove /mnt/etc/nixos if it exists (to ensure a clean clone)
 if [ -d /mnt/etc/nixos ]; then
