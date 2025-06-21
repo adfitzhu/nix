@@ -6,89 +6,86 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }:
-    let
-      hostConfig = import ./host-config.nix;
-    in
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-      in
-      {
-        nixosConfigurations = {
-          gaming = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              (hostConfig {
-                swapSize = "8GiB";
-                autoUpgradeFlake = "github:adfitzhu/nix#gaming";
-                extraPackages = with pkgs; [
-                  git
-                  vscode
-                  clonehero
-                ];
-                initialFlatpaks = [
-                  "com.obsproject.Studio"
-                  "org.kde.kdenlive"
-                  "fr.handbrake.ghb"
-                  "com.makemkv.MakeMKV"
-                  "io.github.JaGoli.ytdl_gui"
-                  "com.usebottles.bottles"
-                  "com.heroicgameslauncher.hgl"
-                  "com.nextcloud.desktopclient"
-                  "org.kde.skanpage"
-                  "net.supertuxkart.SuperTuxKart"
-                ];
-                extraServices = {
-                  services.sunshine.enable = true;
-                };
-                virtualisation.waydroid.enable = true;
-              })
+  outputs = { self, nixpkgs, ... }: {
+    nixosConfigurations = {
+      gaming = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          (import ./host-config.nix {
+            swapSize = "8GiB";
+            autoUpgradeFlake = "github:adfitzhu/nix#gaming";
+            extraPackages = with import nixpkgs { system = "x86_64-linux"; }; [
+              git vscode clonehero
             ];
-          };
-          desktop = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              (hostConfig {
-                swapSize = "4GiB";
-                autoUpgradeFlake = "github:adfitzhu/nix#desktop";
-                extraPackages = with pkgs; [
-                  libreoffice
-                  vlc
-                ];
-                initialFlatpaks = [
-                  "com.obsproject.Studio"
-                ];
-                extraServices = {
-                  services.sunshine.enable = true;
-                };
-              })
+            initialFlatpaks = [
+              "com.obsproject.Studio"
+              "org.kde.kdenlive"
+              "fr.handbrake.ghb"
+              "com.makemkv.MakeMKV"
+              "io.github.JaGoli.ytdl_gui"
+              "com.usebottles.bottles"
+              "com.heroicgameslauncher.hgl"
+              "com.nextcloud.desktopclient"
+              "org.kde.skanpage"
+              "net.supertuxkart.SuperTuxKart"
             ];
-          };
-          laptop = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              (hostConfig {
-                swapSize = "17GiB";
-                autoUpgradeFlake = "github:adfitzhu/nix#laptop";
-                extraPackages = with pkgs; [
-                  libreoffice
-                  vlc
-                ];
-                initialFlatpaks = [
-                  "com.obsproject.Studio"
-                  "com.dev47apps.droidcam"
-                  "com.obsproject.Studio.Plugin.OBSVirtualCam"
-                  "jp.co.epson.EpsonScan2"
-                ];
-                extraServices = {
-                  services.sunshine.enable = true;
-                };
-              })
+            extraServices = {
+              services.sunshine.enable = true;
+            };
+            virtualisation.waydroid.enable = true;
+          })
+        ];
+      };
+      desktop = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          (import ./host-config.nix {
+            swapSize = "4GiB";
+            autoUpgradeFlake = "github:adfitzhu/nix#desktop";
+            extraPackages = with import nixpkgs { system = "x86_64-linux"; }; [
+              libreoffice vlc
             ];
-          };
-        };
-        apps = {};
-        packages = {};
-      });
+            initialFlatpaks = [
+              "com.obsproject.Studio"
+              "org.kde.kdenlive"
+              "fr.handbrake.ghb"
+              "com.makemkv.MakeMKV"
+              "io.github.JaGoli.ytdl_gui"
+              "com.usebottles.bottles"
+              "com.heroicgameslauncher.hgl"
+              "com.nextcloud.desktopclient"
+              "org.kde.skanpage"
+              "net.supertuxkart.SuperTuxKart"
+            ];
+            extraServices = {
+              services.sunshine.enable = true;
+            };
+          })
+        ];
+      };
+      laptop = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          (import ./host-config.nix {
+            swapSize = "17GiB";
+            autoUpgradeFlake = "github:adfitzhu/nix#laptop";
+            extraPackages = with import nixpkgs { system = "x86_64-linux"; }; [
+              libreoffice vlc
+            ];
+            initialFlatpaks = [
+              "com.obsproject.Studio"
+              "com.dev47apps.droidcam"
+              "com.obsproject.Studio.Plugin.OBSVirtualCam"
+              "jp.co.epson.EpsonScan2"
+            ];
+            extraServices = {
+              services.sunshine.enable = true;
+            };
+          })
+        ];
+      };
+    };
+    apps = {};
+    packages = {};
+  };
 }
