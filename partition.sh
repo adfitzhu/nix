@@ -1,35 +1,58 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
-# partition.sh: Partition and mount a drive using disko and flake-based config
-# This script is meant to be run before install.sh. It will partition and mount the selected drive, then exit.
+# partition.sh: Interactive partitioning and subvolume setup (no disko, pure shell)
+# This script will:
+# 1. Show available disks
+# 2. Let user pick a disk
+# 3. Partition, format, and set up btrfs subvolumes as in disko-config.nix
+# 4. Do NOT mount anything (for use with graphical installer)
 
-# If disko is not available, start a nix shell with disko and re-exec the script
-if ! command -v disko &>/dev/null; then
-  if command -v nix-shell &>/dev/null; then
-    echo "disko not found. Re-executing in a nix-shell with disko..."
-    exec nix-shell -p disko --run "bash $0 $@"
-  else
-    echo "Error: disko is required but not found, and nix-shell is not available. Aborting." >&2
-    exit 1
-  fi
-fi
-
-# Show available drives
+# 1. Show available disks
 lsblk -dpno NAME,SIZE,MODEL | grep -v "/loop" || true
 
 echo "\nWARNING: This will ERASE ALL DATA on the selected drive!"
-read -rp "Enter the device path to partition (e.g. /dev/sda): " DRIVE
+DISKS=($(lsblk -dpno NAME | grep -v loop))
+for i in "${!DISKS[@]}"; do
+  echo "$((i+1)). ${DISKS[$i]}"
+done
+read -rp "Enter the number of the disk to partition: " DISKNUM
+DRIVE="${DISKS[$((DISKNUM-1))]}"
 
-# Confirm selection
+echo "You selected $DRIVE"
 read -rp "Are you sure you want to partition $DRIVE? This will destroy all data on it! (yes/NO): " CONFIRM
-if [[ "$CONFIRM" != "yes" ]]; then
-  echo "Aborted."
-  exit 1
-fi
+[ "$CONFIRM" = "yes" ] || { echo "Aborted."; exit 1; }
 
-# Run disko to partition and mount using flake output (parameterized by drive)
-echo "Partitioning $DRIVE using flake disko config..."
-disko --flake ".#disko-config" --argstr drive "$DRIVE"
+# 2. Unmount and wipe
+umount ${DRIVE}?* 2>/dev/null || true
+swapoff ${DRIVE}?* 2>/dev/null || true
+wipefs -a "$DRIVE"
 
-echo "Partitioning and mounting complete. You may now run install.sh."
+# 3. Partition (GPT: bios, boot, swap, root)
+parted --script "$DRIVE" \
+  mklabel gpt \
+  mkpart primary 1MiB 2MiB \
+  set 1 bios_grub on \
+  name 1 bios \
+  mkpart primary fat32 2MiB 514MiB \
+  set 2 esp on \
+  name 2 boot \
+  mkpart primary linux-swap 514MiB 17538MiB \
+  name 3 swap \
+  mkpart primary 17538MiB 100% \
+  name 4 root
+
+# 4. Format partitions
+mkfs.vfat -F32 "${DRIVE}2"
+mkswap "${DRIVE}3"
+mkfs.btrfs -f "${DRIVE}4"
+
+# 5. Create btrfs subvolumes (but do not mount for install)
+mount "${DRIVE}4" /mnt
+btrfs subvolume create /mnt/@
+btrfs subvolume create /mnt/@home
+btrfs subvolume create /mnt/@snapshots
+umount /mnt
+
+# 6. Do NOT mount anything (for graphical installer compatibility)
+echo "Partitioning, formatting, and subvolume setup complete. You may now use the graphical installer and assign mount points as needed."
