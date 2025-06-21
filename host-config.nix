@@ -205,4 +205,27 @@ in
     chmod +x /home/${user}/Desktop/Setup.desktop
     chown ${user}:users /home/${user}/Desktop/Setup.desktop
   '';
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-label/root";
+      fsType = "btrfs";
+      options = [ "subvol=@" ];
+    };
+    "/home" = {
+      device = "/dev/disk/by-label/root";
+      fsType = "btrfs";
+      options = [ "subvol=@home" ];
+    };
+    "/.snapshots" = {
+      device = "/dev/disk/by-label/root";
+      fsType = "btrfs";
+      options = [ "subvol=@snapshots" ];
+    };
+    "/boot" = {
+      device = "/dev/disk/by-label/boot";
+      fsType = "vfat";
+    };
+  };
+  boot.loader.grub.enable = true;
+  boot.loader.grub.devices = [ "/dev/sda" ];
 }
