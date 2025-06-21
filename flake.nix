@@ -14,7 +14,8 @@
     in
     {
       diskoConfigurations = {
-        default = disko.packages.x86_64-linux.diskoConfig.override {
+        default = disko.lib.x86_64-linux.makeConfig {
+          modules = [ ./disko-config.nix ];
           device = "/dev/sda";
           swapSize = "17GiB";
         };
