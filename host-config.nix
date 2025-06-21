@@ -178,12 +178,7 @@ in
       loginctl show-session "$session" -p Name | cut -d'=' -f2
     done | sort -u)
     for user in $users; do
-      [ -n "$user" ] || continue
-      uid=$(id -u "$user") || continue
-      [ -S "/run/user/$uid/bus" ] || continue
-      ${pkgs.sudo}/bin/sudo -u "$user" \
-        DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
-        ${pkgs.libnotify}/bin/notify-send "$title" "$body" || true
+      DISPLAY=:0 ${pkgs.libnotify}/bin/notify-send "$title" "$body" -u normal -a "System" -c "system" -t 10000
     done
   '';
 
