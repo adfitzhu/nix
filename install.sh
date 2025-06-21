@@ -34,9 +34,9 @@ REPO_DIR="/mnt/etc/nixos"
 echo ""
 echo "Step 1: Available system configurations in flake:"
 USER_CONFIGS=(
-  "Gaming|x86_64-linux#gaming"
-  "Desktop|x86_64-linux#desktop"
-  "Laptop|x86_64-linux#laptop"
+  "Gaming|gaming"
+  "Desktop|desktop"
+  "Laptop|laptop"
 )
 for i in "${!USER_CONFIGS[@]}"; do
   NAME="${USER_CONFIGS[$i]%%|*}"
