@@ -14,14 +14,9 @@
     in
     {
       diskoConfigurations = {
-        default = {
-          type = "app";
-          program =
-            let
-              diskoConfig = import ./disko-config.nix;
-              drv = disko.packages.x86_64-linux.disko;
-            in
-              "${drv}/bin/disko --mode disko /mnt --argstr device $DRIVE";
+        default = disko.packages.x86_64-linux.diskoConfig.override {
+          device = "/dev/sda";
+          swapSize = "17GiB";
         };
       };
     } // flake-utils.lib.eachDefaultSystem (system:
