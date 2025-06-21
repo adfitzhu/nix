@@ -14,16 +14,15 @@
     in
     {
       diskoConfigurations = {
-        default = { device ? "/dev/sda", swapSize ? "17GiB" }:
-          {
-            type = "app";
-            program =
-              let
-                config = diskoConfig { device = device; swapSize = swapSize; };
-                drv = disko.packages.x86_64-linux.disko;
-              in
-                "${drv}/bin/disko --mode disko /mnt ${builtins.toFile "disko-config.nix" (builtins.toJSON config)}";
-          };
+        default = {
+          type = "app";
+          program =
+            let
+              diskoConfig = import ./disko-config.nix;
+              drv = disko.packages.x86_64-linux.disko;
+            in
+              "${drv}/bin/disko --mode disko /mnt --argstr device $DRIVE";
+        };
       };
     } // flake-utils.lib.eachDefaultSystem (system:
       let
