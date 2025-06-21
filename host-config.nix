@@ -235,8 +235,9 @@ in
   boot.loader.grub.enable = true;
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.efiInstallAsRemovable = true;
-  # Remove the activation script and dynamic grub.devices logic, as NixOS does not support prompting during activation.
-  # Instead, set boot.loader.grub.devices based on a variable, which can be set via host-args.nix or default to /dev/sda.
-  bootDevice = if builtins.hasAttr "bootDevice" (import ./host-args.nix) && (import ./host-args.nix).bootDevice != null then (import ./host-args.nix).bootDevice else "/dev/sda";
-  boot.loader.grub.devices = [ bootDevice ];
+  boot.loader.grub.devices =
+    let
+      args = import ./host-args.nix;
+    in
+      if args ? bootDevice && args.bootDevice != null then [ args.bootDevice ] else [ "/dev/sda" ];
 }
