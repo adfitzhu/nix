@@ -235,35 +235,8 @@ in
   boot.loader.grub.enable = true;
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.efiInstallAsRemovable = true;
-  boot.loader.grub.devices = [ "/dev/sda" ]; # fallback for BIOS/legacy
-
-  # Prompt for GRUB install device at activation time
-  system.activationScripts.selectGrubDevice.text = ''
-    #!/bin/sh
-    set -eu
-    DEVICES=$(lsblk -dpno NAME | grep -v loop)
-    i=1
-    for dev in $DEVICES; do
-      echo "$i) $dev"
-      i=$((i+1))
-    done
-    echo "Select the number of the drive to install GRUB to:"
-    read -r DEVNUM
-    i=1
-    for dev in $DEVICES; do
-      if [ "$i" = "$DEVNUM" ]; then
-        echo "GRUB will be installed to $dev"
-        echo "$dev" > /etc/grub-install-device
-        break
-      fi
-      i=$((i+1))
-    done
-  '';
-
-  # Use the selected device for GRUB
-  boot.loader.grub.devices =
-    let
-      grubDeviceFile = "/etc/grub-install-device";
-    in
-      if builtins.pathExists grubDeviceFile then [ (builtins.readFile grubDeviceFile) ] else [ "/dev/sda" ];
+  # Remove the activation script and dynamic grub.devices logic, as NixOS does not support prompting during activation.
+  # Instead, set boot.loader.grub.devices based on a variable, which can be set via host-args.nix or default to /dev/sda.
+  bootDevice = if builtins.hasAttr "bootDevice" (import ./host-args.nix) && (import ./host-args.nix).bootDevice != null then (import ./host-args.nix).bootDevice else "/dev/sda";
+  boot.loader.grub.devices = [ bootDevice ];
 }
