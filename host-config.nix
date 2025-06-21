@@ -211,26 +211,23 @@ in
   };
 
   # Create a desktop entry for setup.sh in the user's Desktop
-  homeDir = "/home/${user}";
-  desktopEntryDir = "${homeDir}/Desktop";
-  desktopEntryPath = "${desktopEntryDir}/Setup.desktop";
   systemd.tmpfiles.rules = [
-    "d ${desktopEntryDir} 0755 ${user} users - -"
-    "f ${desktopEntryDir}/Setup.desktop 0755 ${user} users - -"
+    "d /home/${user}/Desktop 0755 ${user} users - -"
+    "f /home/${user}/Desktop/Setup.desktop 0755 ${user} users - -"
   ];
   environment.etc."setup-desktop-entry".text = ''
     [Desktop Entry]
     Name=Initial Setup
     Comment=Run post-install setup tasks (Tailscale, etc)
-    Exec=${homeDir}/utils/setup.sh
+    Exec=/home/${user}/utils/setup.sh
     Icon=utilities-terminal
     Terminal=true
     Type=Application
     Categories=Utility;
   '';
   system.activationScripts.setupDesktopEntry.text = ''
-    cp /etc/setup-desktop-entry ${homeDir}/Desktop/Setup.desktop
-    chmod +x ${homeDir}/Desktop/Setup.desktop
-    chown ${user}:users ${homeDir}/Desktop/Setup.desktop
+    cp /etc/setup-desktop-entry /home/${user}/Desktop/Setup.desktop
+    chmod +x /home/${user}/Desktop/Setup.desktop
+    chown ${user}:users /home/${user}/Desktop/Setup.desktop
   '';
 }
