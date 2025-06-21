@@ -1,4 +1,4 @@
-{ hostname, user, swapSize, autoUpgradeFlake, extraPackages ? [], initialFlatpaks ? [
+{ hostname, user ? "nixos", swapSize, autoUpgradeFlake, extraPackages ? [], initialFlatpaks ? [
   "org.audacityteam.Audacity"
   "org.kde.audiotube"
   "org.clementine_player.Clementine"
