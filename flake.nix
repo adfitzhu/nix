@@ -9,7 +9,6 @@
   outputs = { self, nixpkgs, flake-utils, ... }:
     let
       hostConfig = import ./host-config.nix;
-      diskoConfig = import ./disko-config.nix;
     in
     flake-utils.lib.eachDefaultSystem (system:
       let
