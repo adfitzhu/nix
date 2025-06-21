@@ -12,7 +12,12 @@
       hostConfig = import ./host-config.nix;
       diskoConfig = import ./disko-config.nix;
     in
-    flake-utils.lib.eachDefaultSystem (system:
+    {
+      diskoConfigurations = {
+        default = { device ? "/dev/sda", swapSize ? "17GiB" }:
+          diskoConfig { device = device; swapSize = swapSize; };
+      };
+    } // flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
       in

@@ -74,12 +74,7 @@ read -rp "Step 6: WARNING: All data on $DRIVE will be erased. Continue? (yes/no)
 [ "$CONFIRM" = "yes" ] || { echo "Aborted."; exit 1; }
 
 # 3. Partition and format using disko
-if [ -f disko-config.nix ]; then
-  cp disko-config.nix "$DISKO_CONFIG"
-else
-  echo "disko-config.nix not found in repo. Aborting."; exit 1
-fi
-nix run github:nix-community/disko -- --mode disko /mnt "$DISKO_CONFIG" --argstr drive "$DRIVE"
+nix run .#diskoConfigurations.default -- --mode disko /mnt --argstr device "$DRIVE"
 
 # 4. Generate hardware config
 nixos-generate-config --root /mnt
