@@ -68,6 +68,18 @@ let
 
   };
   mergedServices = baseServices // extraServices;
+  notifyUsersScript = pkgs.writeShellScript "notify-users.sh" ''
+    set -eu
+    title="$1"
+    body="$2"
+    users=$(${pkgs.systemd}/bin/loginctl list-sessions --no-legend | ${pkgs.gawk}/bin/awk '{print $1}' | while read session; do
+      loginctl show-session "$session" -p Name | cut -d'=' -f2
+    done | sort -u)
+    for user in $users; do
+      export XDG_RUNTIME_DIR="/run/user/$(id -u $user)"
+      sudo -u $user DISPLAY=:0 ${pkgs.libnotify}/bin/notify-send "$title" "$body" -u normal -a "System" -c "system" -t 10000 || true
+    done
+  '';
 in
 {
   # Only set hostname if provided (for adam and server)
@@ -170,17 +182,6 @@ in
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  notifyUsersScript = pkgs.writeScript "notify-users.sh" ''
-    set -eu
-    title="$1"
-    body="$2"
-    users=$(${pkgs.systemd}/bin/loginctl list-sessions --no-legend | ${pkgs.gawk}/bin/awk '{print $1}' | while read session; do
-      loginctl show-session "$session" -p Name | cut -d'=' -f2
-    done | sort -u)
-    for user in $users; do
-      DISPLAY=:0 ${pkgs.libnotify}/bin/notify-send "$title" "$body" -u normal -a "System" -c "system" -t 10000
-    done
-  '';
 
   updateFlakeScript = pkgs.writeScript "update-flake.sh" ''
     set -eu
