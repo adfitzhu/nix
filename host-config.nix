@@ -91,7 +91,7 @@ in
     }];
   } else {};
   networking.defaultGateway = if staticIP != null then staticIP.gateway else null;
-  networking.nameservers = if staticIP != null then [ "192.168.1.60" staticIP.gateway ] else null;
+  networking.nameservers = if staticIP != null then [ "192.168.1.60" staticIP.gateway ] else [];
   users.users.${user} = {
     isNormalUser = true;
     extraGroups = [ "wheel" "networkmanager" ];
