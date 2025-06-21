@@ -183,18 +183,6 @@ in
   nixpkgs.config.allowUnfree = true;
 
 
-  updateFlakeScript = pkgs.writeScript "update-flake.sh" ''
-    set -eu
-    # Clone or update your flake repo
-    if [ ! -d "${myRepoPath}/.git" ]; then
-      rm -rf "${myRepoPath}"
-      git clone "${myRepoUrl}" "${myRepoPath}"
-    else
-      git -C "${myRepoPath}" fetch --all
-      git -C "${myRepoPath}" reset --hard origin/main
-    fi
-    # Channel management removed; flakes handle Nixpkgs versioning.
-  '';
   system.stateVersion = "25.05";
 
   xdg.mimeApps = {
