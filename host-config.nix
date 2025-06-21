@@ -216,7 +216,7 @@ in
   desktopEntryPath = "${desktopEntryDir}/Setup.desktop";
   systemd.tmpfiles.rules = [
     "d ${desktopEntryDir} 0755 ${user} users - -"
-    "f ${desktopEntryPath} 0755 ${user} users - -"
+    "f ${desktopEntryDir}/Setup.desktop 0755 ${user} users - -"
   ];
   environment.etc."setup-desktop-entry".text = ''
     [Desktop Entry]
@@ -229,8 +229,8 @@ in
     Categories=Utility;
   '';
   system.activationScripts.setupDesktopEntry.text = ''
-    cp /etc/setup-desktop-entry ${desktopEntryPath}
-    chmod +x ${desktopEntryPath}
-    chown ${user}:users ${desktopEntryPath}
+    cp /etc/setup-desktop-entry ${homeDir}/Desktop/Setup.desktop
+    chmod +x ${homeDir}/Desktop/Setup.desktop
+    chown ${user}:users ${homeDir}/Desktop/Setup.desktop
   '';
 }
