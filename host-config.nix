@@ -186,6 +186,7 @@ in
   system.stateVersion = "25.05";
 
   # Create a desktop entry for setup.sh in the user's Desktop
+  # Ensure Desktop directory exists for the user before creating Setup.desktop
   systemd.tmpfiles.rules = [
     "d /home/${user}/Desktop 0755 ${user} users - -"
     "f /home/${user}/Desktop/Setup.desktop 0755 ${user} users - -"
@@ -201,6 +202,8 @@ in
     Categories=Utility;
   '';
   system.activationScripts.setupDesktopEntry.text = ''
+    # Ensure Desktop directory exists before copying
+    mkdir -p /home/${user}/Desktop
     cp /etc/setup-desktop-entry /home/${user}/Desktop/Setup.desktop
     chmod +x /home/${user}/Desktop/Setup.desktop
     chown ${user}:users /home/${user}/Desktop/Setup.desktop
@@ -227,5 +230,33 @@ in
     };
   };
   boot.loader.grub.enable = true;
-  boot.loader.grub.devices = [ "/dev/sda" ];
+  # Prompt for GRUB install device at activation time
+  system.activationScripts.selectGrubDevice.text = ''
+    #!/bin/sh
+    set -eu
+    DEVICES=$(lsblk -dpno NAME | grep -v loop)
+    i=1
+    for dev in $DEVICES; do
+      echo "$i) $dev"
+      i=$((i+1))
+    done
+    echo "Select the number of the drive to install GRUB to:"
+    read -r DEVNUM
+    i=1
+    for dev in $DEVICES; do
+      if [ "$i" = "$DEVNUM" ]; then
+        echo "GRUB will be installed to $dev"
+        echo "$dev" > /etc/grub-install-device
+        break
+      fi
+      i=$((i+1))
+    done
+  '';
+
+  # Use the selected device for GRUB
+  boot.loader.grub.devices =
+    let
+      grubDeviceFile = "/etc/grub-install-device";
+    in
+      if builtins.pathExists grubDeviceFile then [ (builtins.readFile grubDeviceFile) ] else [ "/dev/sda" ];
 }
