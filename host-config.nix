@@ -185,19 +185,6 @@ in
 
   system.stateVersion = "25.05";
 
-  xdg.mimeApps = {
-    enable = true;
-    defaultApplications = {
-      "application/x-ms-dos-executable" = [ "wine.desktop" ];
-      "application/x-msdownload" = [ "wine.desktop" ];
-      "application/x-exe" = [ "wine.desktop" ];
-      "application/x-winexe" = [ "wine.desktop" ];
-      "application/x-msi" = [ "wine.desktop" ];
-      ".exe" = [ "wine.desktop" ];
-      ".msi" = [ "wine.desktop" ];
-    };
-  };
-
   # Create a desktop entry for setup.sh in the user's Desktop
   systemd.tmpfiles.rules = [
     "d /home/${user}/Desktop 0755 ${user} users - -"
