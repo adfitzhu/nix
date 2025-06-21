@@ -74,7 +74,7 @@ read -rp "Step 6: WARNING: All data on $DRIVE will be erased. Continue? (yes/no)
 [ "$CONFIRM" = "yes" ] || { echo "Aborted."; exit 1; }
 
 # 3. Partition and format using disko
-nix run .#diskoConfigurations.default -- --mode disko /mnt --argstr device "$DRIVE"
+nix run .#diskoConfigurations.default -- --mode disko /mnt ./disko-config.nix --argstr device "$DRIVE"
 
 # 4. Generate hardware config
 nixos-generate-config --root /mnt
