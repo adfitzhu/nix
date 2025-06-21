@@ -43,9 +43,11 @@ parted --script "$DRIVE" \
   name 4 root
 
 # 4. Format partitions
-mkfs.vfat -F32 "${DRIVE}2"
-mkswap "${DRIVE}3"
-mkfs.btrfs -f "${DRIVE}4"
+# Format boot partition with label 'boot'
+mkfs.vfat -F32 -n boot "${DRIVE}2"
+
+# Format root partition with label 'root'
+mkfs.btrfs -f -L root "${DRIVE}4"
 
 # 5. Create btrfs subvolumes (but do not mount for install)
 mount "${DRIVE}4" /mnt
