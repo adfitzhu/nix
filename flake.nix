@@ -3,20 +3,15 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
-    disko.url = "github:nix-community/disko";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, disko, flake-utils, ... }:
+  outputs = { self, nixpkgs, flake-utils, ... }:
     let
       hostConfig = import ./host-config.nix;
       diskoConfig = import ./disko-config.nix;
     in
-    {
-      diskoConfigurations = {
-        default = disko.packages.x86_64-linux.disko;
-      };
-    } // flake-utils.lib.eachDefaultSystem (system:
+    flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
       in
@@ -50,8 +45,6 @@
                 };
                 virtualisation.waydroid.enable = true;
               })
-              disko.nixosModules.disko
-              { disko.devices = diskoConfig { swapSize = "8GiB"; device = "/dev/sda"; }; }
             ];
           };
           desktop = nixpkgs.lib.nixosSystem {
@@ -71,8 +64,6 @@
                   services.sunshine.enable = true;
                 };
               })
-              disko.nixosModules.disko
-              { disko.devices = diskoConfig { swapSize = "4GiB"; device = "/dev/sda"; }; }
             ];
           };
           laptop = nixpkgs.lib.nixosSystem {
@@ -95,8 +86,6 @@
                   services.sunshine.enable = true;
                 };
               })
-              disko.nixosModules.disko
-              { disko.devices = diskoConfig { swapSize = "17GiB"; device = "/dev/sda"; }; }
             ];
           };
         };
