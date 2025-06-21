@@ -62,8 +62,7 @@ NIXSYSTEM="${NIXSYSTEM_PATH#*|}"
 echo ""
 read -rp "Step 2: Enter desired username: " NIXUSER
 echo ""
-read -rsp "Step 3: Enter password for $NIXUSER: " NIXPASS; echo
-read -rp "Step 4: Enter desired hostname: " NIXHOST
+read -rp "Step 3: Enter desired hostname: " NIXHOST
 echo ""
 
 echo "Assuming /mnt is already partitioned and mounted. (If not, run partition.sh first!)"
@@ -83,9 +82,9 @@ EOF
 # 4. Install NixOS with flake
 nixos-install --flake "$REPO_DIR#$NIXSYSTEM"
 
-# 5. Set user and root password
-echo "$NIXUSER:$NIXPASS" | chroot /mnt chpasswd
-echo "root:$NIXPASS" | chroot /mnt chpasswd
+# 5. Prompt to set user password interactively in chroot
+echo "Now set the password for user $NIXUSER in the new system:"
+chroot /mnt passwd "$NIXUSER"
 
 # 6. Copy utils folder to /usr/local/share/utils after install
 cp -r "$REPO_DIR/utils" "/mnt/usr/local/share/utils"
