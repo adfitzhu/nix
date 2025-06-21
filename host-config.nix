@@ -229,7 +229,14 @@ in
       fsType = "vfat";
     };
   };
+  # Bootloader: Use systemd-boot for UEFI, GRUB for BIOS/legacy
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.grub.enable = true;
+  boot.loader.grub.efiSupport = true;
+  boot.loader.grub.efiInstallAsRemovable = true;
+  boot.loader.grub.devices = [ "/dev/sda" ]; # fallback for BIOS/legacy
+
   # Prompt for GRUB install device at activation time
   system.activationScripts.selectGrubDevice.text = ''
     #!/bin/sh
