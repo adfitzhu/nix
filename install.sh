@@ -29,6 +29,15 @@ fi
 REPO_URL="github:adfitzhu/nix"
 REPO_DIR="/mnt/etc/nixos"
 
+# 0. Mount all partitions and subvolumes
+if [ -x "./mount.sh" ]; then
+  echo "Mounting partitions and subvolumes using mount.sh..."
+  ./mount.sh
+else
+  echo "Error: mount.sh not found or not executable. Please ensure it exists in the current directory." >&2
+  exit 1
+fi
+
 # 1. Prompt for system config, user, password, hostname
 
 echo ""
