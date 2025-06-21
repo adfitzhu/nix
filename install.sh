@@ -79,7 +79,7 @@ if [ -f disko-config.nix ]; then
 else
   echo "disko-config.nix not found in repo. Aborting."; exit 1
 fi
-nix run github:nix-community/disko -- --mode disko /mnt "$DISKO_CONFIG" --arg drive '"$DRIVE"'
+nix run github:nix-community/disko -- --mode disko /mnt "$DISKO_CONFIG" --argstr drive "$DRIVE"
 
 # 4. Generate hardware config
 nixos-generate-config --root /mnt
