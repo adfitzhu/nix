@@ -14,8 +14,18 @@
     in
     {
       diskoConfigurations = {
-        default = { device ? "/dev/sda", swapSize ? "17GiB" }:
-          diskoConfig { device = device; swapSize = swapSize; };
+        default = {
+          type = "app";
+          program =
+            let
+              diskoConfig = import ./disko-config.nix;
+            in
+            {
+              type = "app";
+              program =
+                builtins.toString (nixpkgs.lib.getExe (nixpkgs.callPackage diskoConfig { device = device; swapSize = swapSize; }));
+            };
+        };
       };
     } // flake-utils.lib.eachDefaultSystem (system:
       let
