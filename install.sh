@@ -30,11 +30,15 @@ REPO_URL="github:adfitzhu/nix"
 REPO_DIR="/mnt/etc/nixos"
 
 # 0. Mount all partitions and subvolumes
-if [ -x "./mount.sh" ]; then
+if [ -f "./mount.sh" ]; then
+  if [ ! -x "./mount.sh" ]; then
+    echo "mount.sh found but not executable. Setting executable bit..."
+    chmod +x ./mount.sh
+  fi
   echo "Mounting partitions and subvolumes using mount.sh..."
   ./mount.sh
 else
-  echo "Error: mount.sh not found or not executable. Please ensure it exists in the current directory." >&2
+  echo "Error: mount.sh not found in the current directory. Please ensure it exists." >&2
   exit 1
 fi
 
