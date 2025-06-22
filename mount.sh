@@ -10,8 +10,14 @@ BOOT_DEV="/dev/disk/by-label/boot"
 # Mount points
 MNT="/mnt"
 
-# Create mount points
-mkdir -p "$MNT" "$MNT/home" "$MNT/.snapshots" "$MNT/boot"
+# Ensure mount points are clean
+for dir in "$MNT/home" "$MNT/.snapshots" "$MNT/boot"; do
+  if mountpoint -q "$dir"; then
+    umount "$dir"
+  fi
+  rm -rf "$dir"
+  mkdir -p "$dir"
+done
 
 # Mount root subvolume
 mount -o subvol=@ "$ROOT_DEV" "$MNT"
