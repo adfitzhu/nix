@@ -206,27 +206,28 @@ in
     chmod +x /home/${user}/Desktop/Setup.desktop
     chown ${user}:users /home/${user}/Desktop/Setup.desktop
   '';
-  fileSystems = {
-    "/" = {
-      device = "/dev/disk/by-label/root";
-      fsType = "btrfs";
-      options = [ "subvol=@" ];
-    };
-    "/home" = {
-      device = "/dev/disk/by-label/root";
-      fsType = "btrfs";
-      options = [ "subvol=@home" ];
-    };
-    "/.snapshots" = {
-      device = "/dev/disk/by-label/root";
-      fsType = "btrfs";
-      options = [ "subvol=@snapshots" ];
-    };
-    "/boot" = {
-      device = "/dev/disk/by-label/boot";
-      fsType = "vfat";
-    };
-  };
+  # Remove or comment out the fileSystems attribute to avoid conflicts with hardware-configuration.nix
+  # fileSystems = {
+  #   "/" = {
+  #     device = "/dev/disk/by-label/root";
+  #     fsType = "btrfs";
+  #     options = [ "subvol=@" ];
+  #   };
+  #   "/home" = {
+  #     device = "/dev/disk/by-label/root";
+  #     fsType = "btrfs";
+  #     options = [ "subvol=@home" ];
+  #   };
+  #   "/.snapshots" = {
+  #     device = "/dev/disk/by-label/root";
+  #     fsType = "btrfs";
+  #     options = [ "subvol=@snapshots" ];
+  #   };
+  #   "/boot" = {
+  #     device = "/dev/disk/by-label/boot";
+  #     fsType = "vfat";
+  #   };
+  # };
   # Bootloader: Use systemd-boot for UEFI, GRUB for BIOS/legacy
   # Only enable one bootloader at a time to avoid system.build.installBootLoader conflicts
   # Use systemd-boot for UEFI, GRUB for BIOS/legacy
