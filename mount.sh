@@ -10,17 +10,22 @@ BOOT_DEV="/dev/disk/by-label/boot"
 # Mount points
 MNT="/mnt"
 
-# Ensure mount points are clean
+# Unmount and remove any existing mounts or directories for a clean start
 for dir in "$MNT/home" "$MNT/.snapshots" "$MNT/boot"; do
   if mountpoint -q "$dir"; then
-    umount "$dir"
+    umount -l "$dir"
   fi
-  rm -rf "$dir"
+  if [ -d "$dir" ]; then
+    rmdir "$dir" 2>/dev/null || true
+  fi
   mkdir -p "$dir"
 done
 
 # Mount root subvolume
 mount -o subvol=@ "$ROOT_DEV" "$MNT"
+
+# Ensure /mnt/home, /mnt/.snapshots, /mnt/boot exist after root mount
+mkdir -p "$MNT/home" "$MNT/.snapshots" "$MNT/boot"
 
 # Mount home subvolume
 mount -o subvol=@home "$ROOT_DEV" "$MNT/home"

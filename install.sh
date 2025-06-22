@@ -5,7 +5,7 @@ set -eu
 export NIX_CONFIG="experimental-features = nix-command flakes"
 
 # NixOS Flake Automated Installer (partitioning must be done first!)
-# This script assumes /mnt is already partitioned and mounted by partition.sh
+# This script assumes /mnt is already partitioned and mounted by partition.sh and mount.sh
 # It will:
 # 1. Prompt for system config, user, password, hostname
 # 2. Generate hardware config
@@ -17,19 +17,6 @@ export NIX_CONFIG="experimental-features = nix-command flakes"
 
 REPO_URL="github:adfitzhu/nix"
 REPO_DIR="/mnt/etc/nixos"
-
-# 0. Mount all partitions and subvolumes
-if [ -f "./mount.sh" ]; then
-  if [ ! -x "./mount.sh" ]; then
-    echo "mount.sh found but not executable. Setting executable bit..."
-    chmod +x ./mount.sh
-  fi
-  echo "Mounting partitions and subvolumes using mount.sh..."
-  ./mount.sh
-else
-  echo "Error: mount.sh not found in the current directory. Please ensure it exists." >&2
-  exit 1
-fi
 
 # 1. Prompt for system config, user, password, hostname
 
@@ -54,7 +41,7 @@ echo ""
 read -rp "Step 3: Enter desired hostname: " NIXHOST
 echo ""
 
-echo "Assuming /mnt is already partitioned and mounted. (If not, run partition.sh first!)"
+echo "Assuming /mnt is already partitioned and mounted. (If not, run partition.sh and mount.sh first!)"
 
 # 2. Generate hardware config
 nixos-generate-config --root /mnt
@@ -75,7 +62,6 @@ nixos-install --flake "$REPO_DIR#$NIXSYSTEM"
 mkdir -p "/mnt/usr/local/share"
 cp -r "$REPO_DIR/utils" "/mnt/usr/local/share/utils"
 chmod -R a+rX "/mnt/usr/local/share/utils"
-
 
 # 6. Prompt to remove install media before reboot
 echo "Installation complete! Please remove the install media before rebooting."
