@@ -129,7 +129,8 @@ in
     };
   };
   # Wayland and desktop environment (Plasma6, SDDM)
-  services.xserver.enable = false;
+  services.xserver.enable = true;
+  services.xserver.videoDrivers = [ "modesetting" ];
   services.displayManager = {
     sddm.enable = true;
     sddm.wayland.enable = true;
