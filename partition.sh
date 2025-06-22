@@ -45,14 +45,20 @@ parted --script "$DRIVE" \
 # 4. Format partitions (handle nvme and sdX naming)
 if [[ "$DRIVE" == *nvme* ]]; then
   BOOT_PART="${DRIVE}p2"
+  SWAP_PART="${DRIVE}p3"
   ROOT_PART="${DRIVE}p4"
 else
   BOOT_PART="${DRIVE}2"
+  SWAP_PART="${DRIVE}3"
   ROOT_PART="${DRIVE}4"
 fi
 
 # Format boot partition with label 'boot'
 mkfs.vfat -F32 -n boot "$BOOT_PART"
+
+# Format swap partition with label 'swap'
+mkswap -L swap "$SWAP_PART"
+swapon "$SWAP_PART"
 
 # Format root partition with label 'root'
 mkfs.btrfs -f -L root "$ROOT_PART"
