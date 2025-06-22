@@ -59,9 +59,6 @@ echo "Assuming /mnt is already partitioned and mounted. (If not, run partition.s
 # 2. Generate hardware config
 nixos-generate-config --root /mnt
 
-# 2b. Copy hardware-configuration.nix into the flake repo (overwrite if exists)
-cp /mnt/etc/nixos/hardware-configuration.nix /mnt/etc/nixos/hardware-configuration.nix
-
 # 3. Write host-config.nix args
 cat > /mnt/etc/nixos/host-args.nix <<EOF
 {
