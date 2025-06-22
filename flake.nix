@@ -11,6 +11,7 @@
       gaming = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
+          ./hardware-configuration.nix
           (import ./host-config.nix (
             (import ./host-args.nix)
             // {
@@ -42,6 +43,7 @@
       desktop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
+          ./hardware-configuration.nix
           (import ./host-config.nix (
             (import ./host-args.nix)
             // {
@@ -72,6 +74,7 @@
       laptop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
+          ./hardware-configuration.nix
           (import ./host-config.nix (
             (import ./host-args.nix)
             // {

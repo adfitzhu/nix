@@ -4,17 +4,6 @@ set -eu
 # Enable experimental Nix features for flakes and nix-command
 export NIX_CONFIG="experimental-features = nix-command flakes"
 
-# If jq is not available, and nix-shell is present, enter a shell with jq and git and re-exec the script
-if ! command -v jq >/dev/null 2>&1; then
-  if command -v nix-shell >/dev/null 2>&1; then
-    echo "jq not found. Re-executing in a nix-shell with jq and git..."
-    exec nix-shell -p git jq --run "sh $0 $@"
-  else
-    echo "Error: jq is required but not found, and nix-shell is not available. Aborting." >&2
-    exit 1
-  fi
-fi
-
 # NixOS Flake Automated Installer (partitioning must be done first!)
 # This script assumes /mnt is already partitioned and mounted by partition.sh
 # It will:
@@ -69,6 +58,9 @@ echo "Assuming /mnt is already partitioned and mounted. (If not, run partition.s
 
 # 2. Generate hardware config
 nixos-generate-config --root /mnt
+
+# 2b. Copy hardware-configuration.nix into the flake repo (overwrite if exists)
+cp /mnt/etc/nixos/hardware-configuration.nix /mnt/etc/nixos/hardware-configuration.nix
 
 # 3. Write host-config.nix args
 cat > /mnt/etc/nixos/host-args.nix <<EOF
