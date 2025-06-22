@@ -42,15 +42,23 @@ parted --script "$DRIVE" \
   mkpart primary 17538MiB 100% \
   name 4 root
 
-# 4. Format partitions
+# 4. Format partitions (handle nvme and sdX naming)
+if [[ "$DRIVE" == *nvme* ]]; then
+  BOOT_PART="${DRIVE}p2"
+  ROOT_PART="${DRIVE}p4"
+else
+  BOOT_PART="${DRIVE}2"
+  ROOT_PART="${DRIVE}4"
+fi
+
 # Format boot partition with label 'boot'
-mkfs.vfat -F32 -n boot "${DRIVE}2"
+mkfs.vfat -F32 -n boot "$BOOT_PART"
 
 # Format root partition with label 'root'
-mkfs.btrfs -f -L root "${DRIVE}4"
+mkfs.btrfs -f -L root "$ROOT_PART"
 
 # 5. Create btrfs subvolumes (but do not mount for install)
-mount "${DRIVE}4" /mnt
+mount "$ROOT_PART" /mnt
 btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@snapshots
