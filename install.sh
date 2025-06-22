@@ -85,10 +85,8 @@ nixos-install --flake "$REPO_DIR#$NIXSYSTEM"
 # 5. Copy utils folder to /usr/local/share/utils after install
 mkdir -p "/mnt/usr/local/share"
 cp -r "$REPO_DIR/utils" "/mnt/usr/local/share/utils"
-# Symlink Setup.desktop to user's Desktop for convenience
-mkdir -p "/mnt/home/$NIXUSER/Desktop"
-ln -sf "/usr/local/share/utils/Setup.desktop" "/mnt/home/$NIXUSER/Desktop/Setup.desktop"
-chown -h $NIXUSER:users "/mnt/home/$NIXUSER/Desktop/Setup.desktop"
+chmod -R a+rX "/mnt/usr/local/share/utils"
+
 
 # 6. Prompt to remove install media before reboot
 echo "Installation complete! Please remove the install media before rebooting."
