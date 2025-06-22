@@ -95,6 +95,7 @@ in
   users.users.${user} = {
     isNormalUser = true;
     extraGroups = [ "wheel" "networkmanager" ];
+    initialPassword = "password";
     # No packages here; all packages are in environment.systemPackages
   };
   environment.systemPackages = allPackages;

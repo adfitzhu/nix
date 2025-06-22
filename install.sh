@@ -82,18 +82,14 @@ EOF
 # 4. Install NixOS with flake
 nixos-install --flake "$REPO_DIR#$NIXSYSTEM"
 
-# 5. Prompt to set user password interactively in chroot
-echo "Now set the password for user $NIXUSER in the new system:"
-chroot /mnt passwd "$NIXUSER"
-
-# 6. Copy utils folder to /usr/local/share/utils after install
+# 5. Copy utils folder to /usr/local/share/utils after install
 cp -r "$REPO_DIR/utils" "/mnt/usr/local/share/utils"
 # Symlink Setup.desktop to user's Desktop for convenience
 mkdir -p "/mnt/home/$NIXUSER/Desktop"
 ln -sf "/usr/local/share/utils/Setup.desktop" "/mnt/home/$NIXUSER/Desktop/Setup.desktop"
 chown -h $NIXUSER:users "/mnt/home/$NIXUSER/Desktop/Setup.desktop"
 
-# 7. Prompt to remove install media before reboot
+# 6. Prompt to remove install media before reboot
 echo "Installation complete! Please remove the install media before rebooting."
 read -p "Press Enter to reboot..."
 reboot
