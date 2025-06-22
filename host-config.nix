@@ -128,18 +128,14 @@ in
       LC_TIME = "en_US.UTF-8";
     };
   };
-  # Wayland and desktop environment (Plasma6, SDDM)
+  # Minimal guaranteed working Plasma 6 + SDDM config
   services.xserver.enable = true;
   services.xserver.videoDrivers = [ "modesetting" ];
-  services.displayManager = {
-    sddm.enable = true;
-    sddm.wayland.enable = true;
-    autoLogin = {
-      enable = true;
-      user = user;
-    };
-  };
+  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.wayland.enable = true;
   services.desktopManager.plasma6.enable = true;
+  # Optionally, enable X11 fallback for Plasma 6
+  # services.desktopManager.plasma6.x11.enable = true;
   # Flatpak and Flathub
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
