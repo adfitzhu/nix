@@ -228,17 +228,7 @@ in
   #     fsType = "vfat";
   #   };
   # };
-  # Bootloader: Use systemd-boot for UEFI, GRUB for BIOS/legacy
-  # Only enable one bootloader at a time to avoid system.build.installBootLoader conflicts
-  # Use systemd-boot for UEFI, GRUB for BIOS/legacy
+  # Bootloader: Use systemd-boot for UEFI only
   boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = false;
-  boot.loader.grub.enable = false;
-  boot.loader.grub.efiSupport = true;
-  boot.loader.grub.efiInstallAsRemovable = true;
-  boot.loader.grub.devices =
-    let
-      args = import ./host-args.nix;
-    in
-      if args ? bootDevice && args.bootDevice != null then [ args.bootDevice ] else [ "/dev/sda" ];
+  boot.loader.efi.canTouchEfiVariables = true;
 }
