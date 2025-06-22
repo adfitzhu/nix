@@ -83,6 +83,7 @@ EOF
 nixos-install --flake "$REPO_DIR#$NIXSYSTEM"
 
 # 5. Copy utils folder to /usr/local/share/utils after install
+mkdir -p "/mnt/usr/local/share"
 cp -r "$REPO_DIR/utils" "/mnt/usr/local/share/utils"
 # Symlink Setup.desktop to user's Desktop for convenience
 mkdir -p "/mnt/home/$NIXUSER/Desktop"
