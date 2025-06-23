@@ -46,13 +46,6 @@ echo "Assuming /mnt is already partitioned and mounted. (If not, run partition.s
 # 2. Generate hardware config
 nixos-generate-config --root /mnt
 
-# Check that hardware-configuration.nix exists and is not empty
-if [ ! -s /mnt/etc/nixos/hardware-configuration.nix ]; then
-  echo "ERROR: /mnt/etc/nixos/hardware-configuration.nix is missing or empty!"
-  echo "You must run nixos-generate-config --root /mnt and ensure it succeeds before installing."
-  exit 1
-fi
-
 # 3. Write host-config.nix args
 cat > /mnt/etc/nixos/host-args.nix <<EOF
 {
@@ -63,7 +56,7 @@ cat > /mnt/etc/nixos/host-args.nix <<EOF
 EOF
 
 # 4. Install NixOS with flake
-nixos-install --flake "$REPO_DIR#$NIXSYSTEM"
+nixos-install --impure --flake "$REPO_DIR#$NIXSYSTEM"
 
 # 5. Copy utils folder to /usr/local/share/utils after install
 mkdir -p "/mnt/usr/local/share"
