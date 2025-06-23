@@ -230,5 +230,7 @@ in
   # };
   # Bootloader: Use systemd-boot for UEFI only
   boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.configurationLimit = 10;
+  boot.loader.systemd-boot.configurationName = "laptop";
   boot.loader.efi.canTouchEfiVariables = true;
 }
