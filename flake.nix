@@ -92,6 +92,15 @@
               extraServices = {
                 services.sunshine.enable = true;
               };
+              # Add boot.loader options here if missing
+              boot = {
+                loader = {
+                  systemd-boot.enable = true;
+                  systemd-boot.configurationLimit = 10;
+                  systemd-boot.configurationName = "laptop";
+                  efi.canTouchEfiVariables = true;
+                };
+              };
             }
           ))
         ];
