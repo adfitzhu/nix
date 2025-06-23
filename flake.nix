@@ -11,9 +11,9 @@
       gaming = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          ./hardware-configuration.nix
-          (import ./host-config.nix (
-            (import ./host-args.nix)
+          (import /mnt/etc/nixos/hardware-configuration.nix)
+          (import /mnt/etc/nixos/host-config.nix (
+            (import /mnt/etc/nixos/host-args.nix)
             // {
               swapSize = "8GiB";
               autoUpgradeFlake = "github:adfitzhu/nix#gaming";
@@ -43,9 +43,9 @@
       desktop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          ./hardware-configuration.nix
-          (import ./host-config.nix (
-            (import ./host-args.nix)
+          (import /mnt/etc/nixos/hardware-configuration.nix)
+          (import /mnt/etc/nixos/host-config.nix (
+            (import /mnt/etc/nixos/host-args.nix)
             // {
               swapSize = "4GiB";
               autoUpgradeFlake = "github:adfitzhu/nix#desktop";
@@ -74,9 +74,9 @@
       laptop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          ./hardware-configuration.nix
-          (import ./host-config.nix (
-            (import ./host-args.nix)
+          (import /mnt/etc/nixos/hardware-configuration.nix)
+          (import /mnt/etc/nixos/host-config.nix (
+            (import /mnt/etc/nixos/host-args.nix)
             // {
               swapSize = "17GiB";
               autoUpgradeFlake = "github:adfitzhu/nix#laptop";
