@@ -38,12 +38,7 @@
               virtualisation.waydroid.enable = true;
             }
           ))
-          {
-            boot.loader.systemd-boot.enable = true;
-            boot.loader.systemd-boot.configurationLimit = 10;
-            boot.loader.systemd-boot.configurationName = "gaming";
-            boot.loader.efi.canTouchEfiVariables = true;
-          }
+
         ];
       };
       desktop = nixpkgs.lib.nixosSystem {
@@ -75,12 +70,7 @@
               };
             }
           ))
-          {
-            boot.loader.systemd-boot.enable = true;
-            boot.loader.systemd-boot.configurationLimit = 10;
-            boot.loader.systemd-boot.configurationName = "desktop";
-            boot.loader.efi.canTouchEfiVariables = true;
-          }
+
         ];
       };
       laptop = nixpkgs.lib.nixosSystem {
@@ -106,12 +96,7 @@
               };
             }
           ))
-          {
-            boot.loader.systemd-boot.enable = true;
-            boot.loader.systemd-boot.configurationLimit = 10;
-            boot.loader.systemd-boot.configurationName = "laptop";
-            boot.loader.efi.canTouchEfiVariables = true;
-          }
+
         ];
       };
     };
