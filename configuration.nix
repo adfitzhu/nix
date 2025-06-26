@@ -1,7 +1,9 @@
 { config, pkgs, ... }:
 {
-  imports = [ ./disko.nix ];
+`  imports = [
+    ./hardware-configuration.nix
 
+  ];
   networking.hostName = "adam";
   users.users.adam = {
     isNormalUser = true;
@@ -112,9 +114,6 @@
       touch "$MARKER"
     '';
   };
-  networking.interfaces.enp9s0.ipv4.addresses = [{ address = "192.168.1.14"; prefixLength = 24; }];
-  networking.defaultGateway = "192.168.1.1";
-  networking.nameservers = [ "192.168.1.60" "192.168.1.1" ];
-  services.sunshine.enable = true;
+
   system.stateVersion = "25.05";
 }
