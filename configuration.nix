@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
 {
-`  imports = [
+  imports = [
     ./hardware-configuration.nix
 
   ];
@@ -114,6 +114,11 @@
       touch "$MARKER"
     '';
   };
-
+    # Allow unfree packages
+  nixpkgs.config.allowUnfree = true;
+  
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.configurationLimit = 10;
+  boot.loader.efi.canTouchEfiVariables = true;
   system.stateVersion = "25.05";
 }
