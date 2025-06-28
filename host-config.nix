@@ -105,6 +105,8 @@ in
     allowReboot = false;
     dates = "weekly";
     postUpgrade = ''
+      # Update all Flatpaks after system upgrade
+      ${pkgs.flatpak}/bin/flatpak update -y || true
       ${notifyUsersScript} "System Updated" "A new system configuration is ready. Please reboot to apply the update."
       if [ -d "${myRepoPath}/utils" ]; then
         cp -rT "${myRepoPath}/utils" "/usr/local/share/utils"
