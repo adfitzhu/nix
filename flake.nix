@@ -15,7 +15,6 @@
           ({ ... }: {
             _module.args = {
               autoUpgradeFlake = "github:adfitzhu/nix#desktop";
-              myRepoPath = "/usr/local/nixos";
             };
           })
           ./base-config.nix
@@ -40,7 +39,6 @@
           ({ ... }: {
             _module.args = {
               autoUpgradeFlake = "github:adfitzhu/nix#laptop";
-              myRepoPath = "/usr/local/nixos";
             };
           })
           ./base-config.nix
@@ -66,7 +64,6 @@
           ({ ... }: {
             _module.args = {
               autoUpgradeFlake = "github:adfitzhu/nix#generic";
-              myRepoPath = "/usr/local/nixos";
             };
           })
           ./base-config.nix
