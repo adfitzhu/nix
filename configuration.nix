@@ -136,32 +136,5 @@
 
 
 
-  notifyUsersScript = pkgs.writeShellScript "notify-users.sh" ''
-  set -eu
-  title="$1"
-  body="$2"
-  users=$(${pkgs.systemd}/bin/loginctl list-sessions --no-legend | ${pkgs.gawk}/bin/awk '{print $1}' | while read session; do
-    loginctl show-session "$session" -p Name | cut -d'=' -f2
-  done | sort -u)
-  for user in $users; do
-    export XDG_RUNTIME_DIR="/run/user/$(id -u $user)"
-    sudo -u $user DISPLAY=:0 ${pkgs.libnotify}/bin/notify-send "$title" "$body" -u normal -a "System" -c "system" -t 10000 || true
-  done
-'';  
-
-system.autoUpgrade = {
-  enable = true;
-  flake = autoUpgradeFlake;
-  allowReboot = false;
-  dates = "weekly";
-  postUpgrade = ''
-    # Update all Flatpaks after system upgrade
-    ${pkgs.flatpak}/bin/flatpak update -y || true
-    ${notifyUsersScript} "System Updated" "A new system configuration is ready. Please reboot to apply the update."
-    if [ -d "${myRepoPath}/utils" ]; then
-      cp -rT "${myRepoPath}/utils" "/usr/local/share/utils"
-      chmod -R a+rX "/usr/local/share/utils"
-    fi
-  '';
-};
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 }
