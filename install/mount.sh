@@ -11,7 +11,7 @@ BOOT_DEV="/dev/disk/by-label/boot"
 MNT="/mnt"
 
 # Unmount and remove any existing mounts or directories for a clean start
-for dir in "$MNT/home" "$MNT/.snapshots" "$MNT/boot"; do
+for dir in "$MNT/home" "$MNT/boot"; do
   if mountpoint -q "$dir"; then
     umount -l "$dir"
   fi
@@ -24,11 +24,14 @@ done
 # Mount root subvolume
 mount -o subvol=@ "$ROOT_DEV" "$MNT"
 
-# Ensure /mnt/home, /mnt/.snapshots, /mnt/boot exist after root mount
-mkdir -p "$MNT/home" "$MNT/.snapshots" "$MNT/boot"
+# Create mount points after root is mounted
+mkdir -p "$MNT/home" "$MNT/boot"
 
 # Mount home subvolume
 mount -o subvol=@home "$ROOT_DEV" "$MNT/home"
+
+# Create .snapshots after home is mounted
+mkdir -p "$MNT/home/.snapshots"
 
 # Mount snapshots subvolume
 mount -o subvol=@snapshots "$ROOT_DEV" "$MNT/home/.snapshots"
