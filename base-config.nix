@@ -13,6 +13,7 @@ let
     done
   '';
   myRepoPath = if config ? myRepoPath then config.myRepoPath else "/etc/nixos";
+  autoUpgradeFlake = if config ? autoUpgradeFlake then config.autoUpgradeFlake else null;
 in
 {
   # Shared config for all hosts
