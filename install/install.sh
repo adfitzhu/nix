@@ -1,69 +1,45 @@
-#!/bin/sh
-set -eu
-
-# Enable experimental Nix features for flakes and nix-command
-export NIX_CONFIG="experimental-features = nix-command flakes"
-
-# NixOS Flake Automated Installer (partitioning must be done first!)
-# This script assumes /mnt is already partitioned and mounted by partition.sh and mount.sh
-# It will:
-# 1. Prompt for system config, user, password, hostname
-# 2. Generate hardware config
-# 3. Write host-args.nix
-# 4. Run nixos-install with flake
-# 5. Set user/root password
-# 6. Copy utils and symlink Setup.desktop
-# 7. Reboot
-
-REPO_URL="github:adfitzhu/nix"
-REPO_DIR="/mnt/etc/nixos"
-
-# 1. Prompt for system config, user, password, hostname
-
-echo ""
-echo "Step 1: Available system configurations in flake:"
-USER_CONFIGS=(
-  "Gaming|gaming"
-  "Desktop|desktop"
-  "Laptop|laptop"
-)
-for i in "${!USER_CONFIGS[@]}"; do
-  NAME="${USER_CONFIGS[$i]%%|*}"
-  echo "$((i+1)). $NAME"
-done
-read -rp "Step 1: Enter the number of the system config to use: " NIXSYSTEM_NUM
-NIXSYSTEM_PATH="${USER_CONFIGS[$((NIXSYSTEM_NUM-1))]}"
-NIXSYSTEM="${NIXSYSTEM_PATH#*|}"
-
-echo ""
-read -rp "Step 2: Enter desired username: " NIXUSER
-echo ""
-read -rp "Step 3: Enter desired hostname: " NIXHOST
-echo ""
-
-echo "Assuming /mnt is already partitioned and mounted. (If not, run partition.sh and mount.sh first!)"
-
-# 2. Generate hardware config
+# 1. Generate hardware config
 nixos-generate-config --root /mnt
+# 2. Get the config file in the right place for the flake symlink
+cp /mnt/etc/nixos/hardware-configuration.nix /etc/nixos/hardware-configuration.nix
 
-# 3. Write host-config.nix args
-cat > /mnt/etc/nixos/host-args.nix <<EOF
-{
-  hostname = "$NIXHOST";
-  user = "$NIXUSER";
-  autoUpgradeFlake = "$REPO_URL";
-}
-EOF
+# Find flake.nix one directory up
+FLAKE_FILE="$(dirname "$0")/../flake.nix"
 
-# 4. Install NixOS with flake
-nixos-install --impure --flake "$REPO_DIR#$NIXSYSTEM"
+# Extract host names from flake.nix: look for lines like 'name = nixpkgs.lib.nixosSystem {'
+HOSTS=$(awk '
+  /nixosConfigurations[[:space:]]*=/ {inBlock=1; depth=0; next}
+  inBlock {
+    nOpen = gsub(/{/, "{"); nClose = gsub(/}/, "}"); depth += nOpen - nClose
+    if (/^[[:space:]]*[a-zA-Z0-9_-]+[[:space:]]*=[[:space:]]*nixpkgs\.lib\.nixosSystem/) {
+      match($0, /^[[:space:]]*([a-zA-Z0-9_-]+)[[:space:]]*=/, m)
+      if (m[1] != "") print m[1]
+    }
+    if (inBlock && depth < 0) inBlock=0
+  }
+' "$FLAKE_FILE")
 
-# 5. Copy utils folder to /usr/local/share/utils after install
-mkdir -p "/mnt/usr/local/share"
-cp -r "$REPO_DIR/utils" "/mnt/usr/local/share/utils"
-chmod -R a+rX "/mnt/usr/local/share/utils"
+# Convert to array for POSIX sh
+set -- $HOSTS
 
-# 6. Prompt to remove install media before reboot
-echo "Installation complete! Please remove the install media before rebooting."
-read -p "Press Enter to reboot..."
-reboot
+# Present hosts as a numbered list
+echo "Available hosts:"
+i=1
+for host in "$@"; do
+    printf "%d) %s\n" "$i" "$host"
+    i=$((i+1))
+done
+
+# Prompt user to select a host
+read -p "Select a host number: " HOST_NUM
+
+# Validate input
+if [ "$HOST_NUM" -ge 1 ] 2>/dev/null && [ "$HOST_NUM" -le $# ]; then
+    eval SELECTED_HOST=\${$HOST_NUM}
+    echo "Selected host: $SELECTED_HOST"
+else
+    echo "Invalid selection."
+    exit 1
+fi
+echo "nixos-install --impure --no-write-lock-file --flake github:adfitzhu/nix#$SELECTED_HOST"
+
