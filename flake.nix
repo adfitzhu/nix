@@ -59,6 +59,26 @@
           })
         ];
       };
+      generic = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./hardware-configuration.nix
+          ({ ... }: {
+            _module.args = {
+              autoUpgradeFlake = "github:adfitzhu/nix#generic";
+              myRepoPath = "/etc/nixos";
+            };
+          })
+          ./base-config.nix
+          ({ pkgs, ... }: {
+            users.users.adam = {
+              isNormalUser = true;
+              extraGroups = [ "networkmanager" "wheel" ];
+            };
+            # No extra packages or services for generic
+          })
+        ];
+      };
     };
   };
 }

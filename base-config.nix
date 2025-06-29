@@ -13,7 +13,6 @@ let
     done
   '';
   myRepoPath = if config ? myRepoPath then config.myRepoPath else "/etc/nixos";
-  autoUpgradeFlake = if config ? autoUpgradeFlake then config.autoUpgradeFlake else null;
 in
 {
   # Shared config for all hosts
@@ -119,32 +118,37 @@ in
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
   system.stateVersion = "25.05";
-  system.autoUpgrade = {
-    enable = true;
-    flake = autoUpgradeFlake;
-    allowReboot = false;
-    dates = "weekly";
-    flags = [ ];
-  };
 
-  # Custom post-upgrade hook
-  systemd.services.auto-upgrade-post = {
-    description = "Post NixOS auto-upgrade tasks (Flatpak update, notify users, copy utils)";
-    after = [ "nixos-upgrade.service" ];
-    partOf = [ "nixos-upgrade.service" ];
+  # Disable built-in autoUpgrade
+  system.autoUpgrade.enable = false;
+
+  # Custom auto-upgrade service and timer
+  systemd.services.my-auto-upgrade = {
+    description = "Custom NixOS and Flatpak auto-upgrade";
     serviceConfig.Type = "oneshot";
+    path = [ pkgs.git pkgs.nixos-rebuild pkgs.flatpak pkgs.util-linux pkgs.coreutils-full pkgs.systemd pkgs.gawk pkgs.libnotify ];
     script = ''
-      # Update all Flatpaks after system upgrade
+      set -euxo pipefail
+      # Use autoUpgradeFlake if set, otherwise default to github:adfitzhu/nix#generic
+      FLAKE="${if autoUpgradeFlake != null then autoUpgradeFlake else "github:adfitzhu/nix#generic"}"
+      nixos-rebuild switch --upgrade --flake "$FLAKE"
+      # Update all Flatpaks
       ${pkgs.flatpak}/bin/flatpak update -y || true
+      # Notify users
       ${notifyUsersScript} "System Updated" "A new system configuration is ready. Please reboot to apply the update."
+      # Copy utils if present
       if [ -d "${myRepoPath}/utils" ]; then
         cp -rT "${myRepoPath}/utils" "/usr/local/share/utils"
         chmod -R a+rX "/usr/local/share/utils"
       fi
     '';
   };
-
-  # Systemd drop-in to run auto-upgrade-post after nixos-upgrade
-  systemd.services.nixos-upgrade.serviceConfig.ExecStartPost =
-    [ "/run/current-system/systemd/bin/systemctl start auto-upgrade-post.service" ];
+  systemd.timers.my-auto-upgrade = {
+    description = "Run custom NixOS and Flatpak auto-upgrade weekly";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "weekly";
+      Persistent = true;
+    };
+  };
 }
