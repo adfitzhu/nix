@@ -139,9 +139,9 @@ in
       ${notifyUsersScript} "System Updated" "A new system configuration is ready. Please reboot to apply the update."
       # Update local utility repo
       if [ -d /usr/local/nixos/.git ]; then
-        git -C /usr/local/nixos pull --rebase || true
+        ${pkgs.git}/bin/git -C /usr/local/nixos pull --rebase || true
       else
-        git clone https://github.com/adfitzhu/nix.git /usr/local/nixos || true
+        ${pkgs.git}/bin/git clone https://github.com/adfitzhu/nix.git /usr/local/nixos || true
       fi
     '';
   };
