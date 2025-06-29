@@ -7,7 +7,7 @@
   networking.hostName = "adam";
   users.users.adam = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [ "networkmanager" "wheel" "vboxsf" ];
   };
   environment.systemPackages = with pkgs; [
     kdePackages.kate
@@ -81,39 +81,7 @@
       flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     '';
   };
-  systemd.services.initial-flatpaks = {
-    description = "Install initial Flatpaks";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "flatpak-repo.service" ];
-    path = [ pkgs.flatpak ];
-    serviceConfig.Type = "oneshot";
-    script = ''
-      #!/bin/sh
-      MARKER=/var/lib/initial-flatpaks.done
-      if [ -e "$MARKER" ]; then
-        exit 0
-      fi
-      for app in \
-        com.obsproject.Studio \
-        org.audacityteam.Audacity \
-        org.kde.audiotube \
-        org.kde.kdenlive \
-        org.clementine_player.Clementine \
-        fr.handbrake.ghb \
-        com.makemkv.MakeMKV \
-        io.github.JaGoli.ytdl_gui \
-        io.freetubeapp.FreeTube \
-        org.kde.audiotube \
-        com.usebottles.bottles \
-        com.nextcloud.desktopclient \
-        org.kde.skanpage \
-        net.supertuxkart.SuperTuxKart
-      do
-        flatpak install -y --noninteractive flathub "$app"
-      done
-      touch "$MARKER"
-    '';
-  };
+  
     # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
   
