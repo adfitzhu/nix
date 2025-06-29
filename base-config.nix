@@ -1,16 +1,6 @@
 { config, pkgs, ... }:
 {
-  imports = [
-    ./hardware-configuration.nix
-
-  ];
-  users.users.adam = {
-    isNormalUser = true;
-    extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" ];
-  };
-
-  
-  # Allow unfree packages
+  # Shared config for all hosts
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
     kdePackages.discover
@@ -28,11 +18,6 @@
     btrfs-assistant
     wine
     digikam
-    
-    git
-    vscode
-    clonehero
-
   ];
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
@@ -42,7 +27,6 @@
       flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     '';
   };
-
   time.timeZone = "America/Los_Angeles";
   i18n = {
     defaultLocale = "en_US.UTF-8";
@@ -96,72 +80,55 @@
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
-  
-  # Networking and security
-  networking.hostName = "adam";
-  networking.networkmanager.enable = true;
   services.openssh.enable = true;
   services.fail2ban.enable = true;
   services.tailscale.enable = true;
-
-  # Sunshine service
-  services.sunshine.enable = true;
-  
-  # Enable the Waydroid service
   virtualisation.waydroid.enable = true;
-  
-  
   services.snapper = {
-      snapshotInterval = "hourly";
-      cleanupInterval = "daily";
-      configs = {
-        home = {
-          SUBVOLUME = "/home";
-          TIMELINE_CREATE = true;
-          TIMELINE_CLEANUP = true;
-          TIMELINE_LIMIT_HOURLY = 6;
-          TIMELINE_LIMIT_DAILY = 7;
-          TIMELINE_LIMIT_WEEKLY = 4;
-          TIMELINE_LIMIT_MONTHLY = 3;
-        };
-        # Add more configs for other subvolumes if needed
+    snapshotInterval = "hourly";
+    cleanupInterval = "daily";
+    configs = {
+      home = {
+        SUBVOLUME = "/home";
+        TIMELINE_CREATE = true;
+        TIMELINE_CLEANUP = true;
+        TIMELINE_LIMIT_HOURLY = 6;
+        TIMELINE_LIMIT_DAILY = 7;
+        TIMELINE_LIMIT_WEEKLY = 4;
+        TIMELINE_LIMIT_MONTHLY = 3;
       };
+    };
   };
-
-  
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
   system.stateVersion = "25.05";
-
-
-
   notifyUsersScript = pkgs.writeShellScript "notify-users.sh" ''
-  set -eu
-  title="$1"
-  body="$2"
-  users=$(${pkgs.systemd}/bin/loginctl list-sessions --no-legend | ${pkgs.gawk}/bin/awk '{print $1}' | while read session; do
-    loginctl show-session "$session" -p Name | cut -d'=' -f2
-  done | sort -u)
-  for user in $users; do
-    export XDG_RUNTIME_DIR="/run/user/$(id -u $user)"
-    sudo -u $user DISPLAY=:0 ${pkgs.libnotify}/bin/notify-send "$title" "$body" -u normal -a "System" -c "system" -t 10000 || true
-  done
-'';  
-
-system.autoUpgrade = {
-  enable = true;
-  flake = autoUpgradeFlake;
-  allowReboot = false;
-  dates = "weekly";
-  postUpgrade = ''
-    # Update all Flatpaks after system upgrade
-    ${pkgs.flatpak}/bin/flatpak update -y || true
-    ${notifyUsersScript} "System Updated" "A new system configuration is ready. Please reboot to apply the update."
-    if [ -d "${myRepoPath}/utils" ]; then
-      cp -rT "${myRepoPath}/utils" "/usr/local/share/utils"
-      chmod -R a+rX "/usr/local/share/utils"
-    fi
+    set -eu
+    title="$1"
+    body="$2"
+    users=$(${pkgs.systemd}/bin/loginctl list-sessions --no-legend | ${pkgs.gawk}/bin/awk '{print $1}' | while read session; do
+      loginctl show-session "$session" -p Name | cut -d'=' -f2
+    done | sort -u)
+    for user in $users; do
+      export XDG_RUNTIME_DIR="/run/user/$(id -u $user)"
+      sudo -u $user DISPLAY=:0 ${pkgs.libnotify}/bin/notify-send "$title" "$body" -u normal -a "System" -c "system" -t 10000 || true
+    done
   '';
-};
+
+  system.autoUpgrade = {
+    enable = true;
+    flake = config.autoUpgradeFlake;
+    allowReboot = false;
+    dates = "weekly";
+    postUpgrade = ''
+      # Update all Flatpaks after system upgrade
+      ${pkgs.flatpak}/bin/flatpak update -y || true
+      ${config.notifyUsersScript} "System Updated" "A new system configuration is ready. Please reboot to apply the update."
+      if [ -d "${config.myRepoPath}/utils" ]; then
+        cp -rT "${config.myRepoPath}/utils" "/usr/local/share/utils"
+        chmod -R a+rX "/usr/local/share/utils"
+      fi
+    '';
+  };
 }
