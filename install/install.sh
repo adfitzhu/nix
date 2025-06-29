@@ -41,5 +41,5 @@ else
     echo "Invalid selection."
     exit 1
 fi
-echo "nixos-install --impure --no-write-lock-file --flake github:adfitzhu/nix#$SELECTED_HOST"
+nixos-install --impure --no-write-lock-file --flake github:adfitzhu/nix#$SELECTED_HOST
 
