@@ -124,6 +124,7 @@ in
     flake = autoUpgradeFlake;
     allowReboot = false;
     dates = "weekly";
+    flags = [ ];
   };
 
   # Custom post-upgrade hook

@@ -27,9 +27,7 @@
             environment.systemPackages = [
               pkgs.git
               pkgs.vscode
-              pkgs.clonehero
-              pkgs.kdePackages.yakuake
-              pkgs.firefox
+
             ];
             services.sunshine.enable = true;
           })
@@ -51,7 +49,13 @@
               isNormalUser = true;
               extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" ];
             };
-            # No extra packages/services for laptop
+            environment.systemPackages = [
+              pkgs.git
+              pkgs.vscode
+              pkgs.clonehero
+              pkgs.kdePackages.yakuake
+              pkgs.firefox
+            ];
           })
         ];
       };
