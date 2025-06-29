@@ -3,9 +3,10 @@ git clone http://github.com/adfitzhu/nix /mnt/usr/local/nixos
 for userdir in /home/*; do
     desktop_dir="$userdir/Desktop"
     if [ -d "$userdir" ]; then
+        username=$(basename "$userdir")
         mkdir -p "$desktop_dir"
         cp /mnt/usr/local/nixos/utils/Setup.desktop "$desktop_dir/"
-        chown "$(basename "$userdir")":"$(basename "$userdir")" "$desktop_dir/Setup.desktop"
+        chown "$username:$username" "$desktop_dir/Setup.desktop"
         chmod 755 "$desktop_dir/Setup.desktop"
     fi
 done
