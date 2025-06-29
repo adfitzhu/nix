@@ -130,7 +130,7 @@ in
   systemd.services.auto-upgrade-post = {
     description = "Post NixOS auto-upgrade tasks (Flatpak update, notify users, copy utils)";
     after = [ "nixos-upgrade.service" ];
-    wantedBy = [ "nixos-upgrade.service" ];
+    partOf = [ "nixos-upgrade.service" ];
     serviceConfig.Type = "oneshot";
     script = ''
       # Update all Flatpaks after system upgrade
@@ -142,4 +142,8 @@ in
       fi
     '';
   };
+
+  # Systemd drop-in to run auto-upgrade-post after nixos-upgrade
+  systemd.services.nixos-upgrade.serviceConfig.ExecStartPost =
+    [ "/run/current-system/systemd/bin/systemctl start auto-upgrade-post.service" ];
 }

@@ -29,6 +29,7 @@
               pkgs.vscode
               pkgs.clonehero
               pkgs.kdePackages.yakuake
+              pkgs.firefox
             ];
             services.sunshine.enable = true;
           })
