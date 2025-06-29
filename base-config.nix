@@ -137,10 +137,11 @@ in
       ${pkgs.flatpak}/bin/flatpak update -y || true
       # Notify users
       ${notifyUsersScript} "System Updated" "A new system configuration is ready. Please reboot to apply the update."
-      # Copy utils if present
-      if [ -d "${myRepoPath}/utils" ]; then
-        cp -rT "${myRepoPath}/utils" "/usr/local/share/utils"
-        chmod -R a+rX "/usr/local/share/utils"
+      # Update local utility repo
+      if [ -d /usr/local/nixos/.git ]; then
+        git -C /usr/local/nixos pull --rebase || true
+      else
+        git clone https://github.com/adfitzhu/nix.git /usr/local/nixos || true
       fi
     '';
   };
