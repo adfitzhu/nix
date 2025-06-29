@@ -6,50 +6,54 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-      in {
-        nixosConfigurations = {
-          desktop = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              /etc/nixos/hardware-configuration.nix
-              ./base-config.nix
-              ({ pkgs, config, ... }: {
-                autoUpgradeFlake = "github:adfitzhu/nix#desktop";
-                myRepoPath = "/etc/nixos";
-                users.users.adam = {
-                  isNormalUser = true;
-                  extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" ];
-                };
-                environment.systemPackages = (config.environment.systemPackages or []) ++ [
-                  pkgs.git
-                  pkgs.vscode
-                  pkgs.clonehero
-                ];
-                services.sunshine.enable = true;
-              })
+  outputs = { self, nixpkgs, ... }: {
+    nixosConfigurations = {
+      desktop = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./hardware-configuration.nix
+          ({ ... }: {
+            _module.args = {
+              autoUpgradeFlake = "github:adfitzhu/nix#desktop";
+              myRepoPath = "/etc/nixos";
+            };
+          })
+          ./base-config.nix
+          ({ pkgs, ... }: {
+            users.users.adam = {
+              isNormalUser = true;
+              extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" ];
+            };
+            environment.systemPackages = [
+              pkgs.git
+              pkgs.vscode
+              pkgs.clonehero
+              pkgs.kdePackages.yakuake
             ];
-          };
-          laptop = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              /etc/nixos/hardware-configuration.nix
-              ./base-config.nix
-              ({ pkgs, config, ... }: {
-                autoUpgradeFlake = "github:adfitzhu/nix#laptop";
-                myRepoPath = "/etc/nixos";
-                users.users.adam = {
-                  isNormalUser = true;
-                  extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" ];
-                };
-                # No extra packages/services for laptop
-              })
-            ];
-          };
-        };
-      }
-    );
+            services.sunshine.enable = true;
+          })
+        ];
+      };
+      laptop = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./hardware-configuration.nix
+          ({ ... }: {
+            _module.args = {
+              autoUpgradeFlake = "github:adfitzhu/nix#laptop";
+              myRepoPath = "/etc/nixos";
+            };
+          })
+          ./base-config.nix
+          ({ pkgs, ... }: {
+            users.users.adam = {
+              isNormalUser = true;
+              extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" ];
+            };
+            # No extra packages/services for laptop
+          })
+        ];
+      };
+    };
+  };
 }

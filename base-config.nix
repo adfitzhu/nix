@@ -1,4 +1,20 @@
 { config, pkgs, ... }:
+let
+  notifyUsersScript = pkgs.writeShellScript "notify-users.sh" ''
+    set -eu
+    title="$1"
+    body="$2"
+    users=$(${pkgs.systemd}/bin/loginctl list-sessions --no-legend | ${pkgs.gawk}/bin/awk '{print $1}' | while read session; do
+      loginctl show-session "$session" -p Name | cut -d'=' -f2
+    done | sort -u)
+    for user in $users; do
+      export XDG_RUNTIME_DIR="/run/user/$(id -u $user)"
+      sudo -u $user DISPLAY=:0 ${pkgs.libnotify}/bin/notify-send "$title" "$body" -u normal -a "System" -c "system" -t 10000 || true
+    done
+  '';
+  myRepoPath = if config ? myRepoPath then config.myRepoPath else "/etc/nixos";
+  autoUpgradeFlake = if config ? autoUpgradeFlake then config.autoUpgradeFlake else null;
+in
 {
   # Shared config for all hosts
   nixpkgs.config.allowUnfree = true;
@@ -103,30 +119,25 @@
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
   system.stateVersion = "25.05";
-  notifyUsersScript = pkgs.writeShellScript "notify-users.sh" ''
-    set -eu
-    title="$1"
-    body="$2"
-    users=$(${pkgs.systemd}/bin/loginctl list-sessions --no-legend | ${pkgs.gawk}/bin/awk '{print $1}' | while read session; do
-      loginctl show-session "$session" -p Name | cut -d'=' -f2
-    done | sort -u)
-    for user in $users; do
-      export XDG_RUNTIME_DIR="/run/user/$(id -u $user)"
-      sudo -u $user DISPLAY=:0 ${pkgs.libnotify}/bin/notify-send "$title" "$body" -u normal -a "System" -c "system" -t 10000 || true
-    done
-  '';
-
   system.autoUpgrade = {
     enable = true;
-    flake = config.autoUpgradeFlake;
+    flake = autoUpgradeFlake;
     allowReboot = false;
     dates = "weekly";
-    postUpgrade = ''
+  };
+
+  # Custom post-upgrade hook
+  systemd.services.auto-upgrade-post = {
+    description = "Post NixOS auto-upgrade tasks (Flatpak update, notify users, copy utils)";
+    after = [ "nixos-upgrade.service" ];
+    wantedBy = [ "nixos-upgrade.service" ];
+    serviceConfig.Type = "oneshot";
+    script = ''
       # Update all Flatpaks after system upgrade
       ${pkgs.flatpak}/bin/flatpak update -y || true
-      ${config.notifyUsersScript} "System Updated" "A new system configuration is ready. Please reboot to apply the update."
-      if [ -d "${config.myRepoPath}/utils" ]; then
-        cp -rT "${config.myRepoPath}/utils" "/usr/local/share/utils"
+      ${notifyUsersScript} "System Updated" "A new system configuration is ready. Please reboot to apply the update."
+      if [ -d "${myRepoPath}/utils" ]; then
+        cp -rT "${myRepoPath}/utils" "/usr/local/share/utils"
         chmod -R a+rX "/usr/local/share/utils"
       fi
     '';
