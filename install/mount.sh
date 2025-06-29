@@ -31,7 +31,7 @@ mkdir -p "$MNT/home" "$MNT/.snapshots" "$MNT/boot"
 mount -o subvol=@home "$ROOT_DEV" "$MNT/home"
 
 # Mount snapshots subvolume
-mount -o subvol=@snapshots "$ROOT_DEV" "$MNT/.snapshots"
+mount -o subvol=@snapshots "$ROOT_DEV" "$MNT/home/.snapshots"
 
 # Mount boot partition
 mount "$BOOT_DEV" "$MNT/boot"
