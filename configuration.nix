@@ -4,23 +4,44 @@
     ./hardware-configuration.nix
 
   ];
-  networking.hostName = "adam";
   users.users.adam = {
     isNormalUser = true;
-    extraGroups = [ "networkmanager" "wheel" "vboxsf" ];
+    extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" ];
   };
+
+  
+  # Allow unfree packages
+  nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
-    kdePackages.kate
     kdePackages.discover
-    timeshift
     kdePackages.kdesu
-    clementine
     libreoffice
-    vlc
-    git
-    vscode
     libnotify
     flatpak
+    vlc
+    p7zip
+    corefonts
+    vista-fonts
+    btrfs-progs
+    rustdesk
+    google-chrome
+    btrfs-assistant
+    wine
+    digikam
+    
+    git
+    vscode
+    clonehero
+
+  services.flatpak.enable = true;  
+  systemd.services.flatpak-repo = {
+    wantedBy = [ "multi-user.target" ];
+    path = [ pkgs.flatpak ];
+    script = ''
+      flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    '';
+  };
+
   ];
   time.timeZone = "America/Los_Angeles";
   i18n = {
@@ -51,6 +72,10 @@
     enable = true;
     browsing = true;
     drivers = [ pkgs.epson-escpr2 ];
+    extraConf = ''
+      FileDevice No
+      DefaultPrinter None
+    '';
   };
   services.avahi = {
     enable = true;
@@ -71,22 +96,42 @@
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
-  services.openssh.enable = true;
-  services.tailscale.enable = true;
-  services.flatpak.enable = true;
-  systemd.services.flatpak-repo = {
-    wantedBy = [ "multi-user.target" ];
-    path = [ pkgs.flatpak ];
-    script = ''
-      flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    '';
-  };
   
-    # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
+  # Networking and security
+  networking.hostName = "adam";
+  networking.networkmanager.enable = true;
+  services.openssh.enable = true;
+  services.fail2ban.enable = true;
+  services.tailscale.enable = true;
+
+  # Sunshine service
+  services.sunshine.enable = true;
+  
+  # Enable the Waydroid service
+  virtualisation.waydroid.enable = true;
+  
+  
+  services.snapper = {
+      snapshotInterval = "hourly";
+      cleanupInterval = "daily";
+      configs = {
+        home = {
+          SUBVOLUME = "/home";
+          TIMELINE_CREATE = true;
+          TIMELINE_CLEANUP = true;
+          TIMELINE_LIMIT_HOURLY = 6;
+          TIMELINE_LIMIT_DAILY = 7;
+          TIMELINE_LIMIT_WEEKLY = 4;
+          TIMELINE_LIMIT_MONTHLY = 3;
+        };
+        # Add more configs for other subvolumes if needed
+      };
+  };
+
   
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
   system.stateVersion = "25.05";
+  
 }
