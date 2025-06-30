@@ -92,7 +92,6 @@ mkfs.btrfs -f -L root "$ROOT_PART"
 mount "$ROOT_PART" /mnt
 btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
-btrfs subvolume create /mnt/@snapshots
 umount /mnt
 
 # 6. Do NOT mount anything (for graphical installer compatibility)

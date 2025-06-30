@@ -33,9 +33,6 @@ mount -o subvol=@home "$ROOT_DEV" "$MNT/home"
 # Create .snapshots after home is mounted
 mkdir -p "$MNT/home/.snapshots"
 
-# Mount snapshots subvolume
-mount -o subvol=@snapshots "$ROOT_DEV" "$MNT/home/.snapshots"
-
 # Mount boot partition
 mount "$BOOT_DEV" "$MNT/boot"
 
