@@ -29,7 +29,7 @@ in
     corefonts
     vista-fonts
     btrfs-progs
-    rustdesk
+    #rustdesk
     google-chrome
     btrfs-assistant
     wine
