@@ -34,6 +34,8 @@ in
     btrfs-assistant
     wine
     digikam
+    timeshift
+    
   ];
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
