@@ -35,7 +35,7 @@ in
     wine
     digikam
     timeshift
-    
+    btrbk
   ];
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
@@ -102,21 +102,21 @@ in
   services.fail2ban.enable = true;
   services.tailscale.enable = true;
   virtualisation.waydroid.enable = true;
-  services.snapper = {
-    snapshotInterval = "hourly";
-    cleanupInterval = "daily";
-    configs = {
-      home = {
-        SUBVOLUME = "/home";
-        TIMELINE_CREATE = true;
-        TIMELINE_CLEANUP = true;
-        TIMELINE_LIMIT_HOURLY = 6;
-        TIMELINE_LIMIT_DAILY = 7;
-        TIMELINE_LIMIT_WEEKLY = 4;
-        TIMELINE_LIMIT_MONTHLY = 3;
-      };
-    };
-  };
+  # services.snapper = {
+  #   snapshotInterval = "hourly";
+  #   cleanupInterval = "daily";
+  #   configs = {
+  #     home = {
+  #       SUBVOLUME = "/home";
+  #       TIMELINE_CREATE = true;
+  #       TIMELINE_CLEANUP = true;
+  #       TIMELINE_LIMIT_HOURLY = 6;
+  #       TIMELINE_LIMIT_DAILY = 7;
+  #       TIMELINE_LIMIT_WEEKLY = 4;
+  #       TIMELINE_LIMIT_MONTHLY = 3;
+  #     };
+  #   };
+  # };
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -155,4 +155,28 @@ in
       Persistent = true;
     };
   };
+  # btrbk systemd service and timer for hourly snapshots
+  systemd.services.btrbk-snapshot = {
+    description = "btrbk snapshot";
+    serviceConfig.Type = "oneshot";
+    path = [ pkgs.btrbk ];
+    script = "btrbk run";
+  };
+  systemd.timers.btrbk-snapshot = {
+    description = "btrbk snapshot timer";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "hourly";
+      Persistent = true;
+    };
+  };
+  # Provide btrbk config in /etc/btrbk/btrbk.conf
+  environment.etc."btrbk/btrbk.conf".text = ''
+    snapshot_preserve_min 1d
+    snapshot_preserve 6h 7d 4w 3m
+
+    volume /home
+      snapshot_dir .snapshots
+      subvolume @home
+  '';
 }
