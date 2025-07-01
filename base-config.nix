@@ -155,28 +155,23 @@ in
       Persistent = true;
     };
   };
-  # btrbk systemd service and timer for hourly snapshots
-  systemd.services.btrbk-snapshot = {
-    description = "btrbk snapshot";
-    serviceConfig.Type = "oneshot";
-    path = [ pkgs.btrbk ];
-    script = "btrbk run";
-  };
-  systemd.timers.btrbk-snapshot = {
-    description = "btrbk snapshot timer";
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "hourly";
-      Persistent = true;
+  # Use NixOS native btrbk service for hourly snapshots and retention
+  services.btrbk = {
+    enable = true;
+    instances.home = {
+      onCalendar = "hourly";
+      settings = {
+        snapshot_preserve_min = "1d";
+        snapshot_preserve = "6h 7d 4w 3m";
+        volume."/home" = {
+          snapshot_dir = ".snapshots";
+          subvolume = ".";
+        };
+      };
     };
   };
-  # Provide btrbk config in /etc/btrbk/btrbk.conf
-  environment.etc."btrbk/btrbk.conf".text = ''
-    snapshot_preserve_min 1d
-    snapshot_preserve 6h 7d 4w 3m
-
-    volume /home
-      snapshot_dir .snapshots
-      subvolume .
-  '';
+  # Ensure /home/.snapshots exists for btrbk
+  systemd.tmpfiles.rules = [
+    "d /home/.snapshots 0755 root root"
+  ];
 }
