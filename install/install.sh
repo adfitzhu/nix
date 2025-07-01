@@ -41,5 +41,5 @@ else
     echo "Invalid selection."
     exit 1
 fi
-nixos-install --impure --no-write-lock-file --flake github:adfitzhu/nix#$SELECTED_HOST --option experimental-features "nix-command flakes"
+nixos-install --impure --no-write-lock-file --flake github:adfitzhu/nix#$SELECTED_HOST 
 
