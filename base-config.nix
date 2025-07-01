@@ -134,7 +134,7 @@ in
       set -euxo pipefail
       # Use autoUpgradeFlake if set, otherwise default to github:adfitzhu/nix#generic
       FLAKE="${if autoUpgradeFlake != null then autoUpgradeFlake else "github:adfitzhu/nix#generic"}"
-      nixos-rebuild switch --upgrade --flake "$FLAKE" --no-write-lock-file --impure --extra-experimental-features flakes
+      nixos-rebuild switch --upgrade --flake "$FLAKE" --no-write-lock-file --impure
       # Update all Flatpaks
       ${pkgs.flatpak}/bin/flatpak update -y || true
       # Notify users
