@@ -156,16 +156,18 @@ in
     };
   };
   # Use NixOS native btrbk service for hourly snapshots and retention
-  services.btrbk = {
-    enable = true;
-    instances.home = {
+  services.btrbk.instances = {
+    "home" = {
       onCalendar = "hourly";
       settings = {
+        timestamp_format = "long";
         snapshot_preserve_min = "1d";
         snapshot_preserve = "6h 7d 4w 3m";
-        volume."/home" = {
-          snapshot_dir = ".snapshots";
-          subvolume = ".";
+        volume = {
+          "/home" = {
+            snapshot_dir = ".snapshots";
+            subvolume = ".";
+          };
         };
       };
     };
