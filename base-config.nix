@@ -112,37 +112,39 @@ in
   system.stateVersion = "25.05";
 
   # Disable built-in autoUpgrade
-  system.autoUpgrade.enable = false;
+  # system.autoUpgrade.enable = false;
 
   # Custom auto-upgrade service and timer
-  systemd.services.my-auto-upgrade = {
-    description = "Custom NixOS and Flatpak auto-upgrade";
-    serviceConfig.Type = "oneshot";
-    path = [ pkgs.git pkgs.nixos-rebuild pkgs.flatpak pkgs.util-linux pkgs.coreutils-full pkgs.systemd pkgs.gawk pkgs.libnotify ];
-    script = ''
-      set -euxo pipefail
-      # Use autoUpgradeFlake if set, otherwise default to github:adfitzhu/nix#generic
-      FLAKE="${if autoUpgradeFlake != null then autoUpgradeFlake else "github:adfitzhu/nix#generic"}"
-      echo "Auto-upgrade using flake: $FLAKE"
-      ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --flake "$FLAKE" --no-write-lock-file --impure
-      # Update all Flatpaks
-      ${pkgs.flatpak}/bin/flatpak update -y || true
-      # Update local utility repo
-      if [ -d /usr/local/nixos/.git ]; then
-        ${pkgs.git}/bin/git -C /usr/local/nixos pull --rebase || true
-      else
-        ${pkgs.git}/bin/git clone https://github.com/adfitzhu/nix.git /usr/local/nixos || true
-      fi
-    '';
-  };
-  systemd.timers.my-auto-upgrade = {
-    description = "Run custom NixOS and Flatpak auto-upgrade weekly";
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "weekly";
-      Persistent = true;
-    };
-  };
+  # systemd.services.my-auto-upgrade = {
+  #   description = "Custom NixOS and Flatpak auto-upgrade";
+  #   serviceConfig.Type = "oneshot";
+  #   path = [ pkgs.git pkgs.nixos-rebuild pkgs.flatpak pkgs.util-linux pkgs.coreutils-full pkgs.systemd pkgs.gawk pkgs.libnotify ];
+  #   script = ''
+  #     set -euxo pipefail
+  #     # Use autoUpgradeFlake if set, otherwise default to github:adfitzhu/nix#generic
+  #     FLAKE="${if autoUpgradeFlake != null then autoUpgradeFlake else "github:adfitzhu/nix#generic"}"
+  #     echo "Auto-upgrade using flake: $FLAKE"
+  #     ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --flake "$FLAKE" --no-write-lock-file --impure
+  #     # Update all Flatpaks
+  #     ${pkgs.flatpak}/bin/flatpak update -y || true
+  #     # Update local utility repo
+  #     if [ -d /usr/local/nixos/.git ]; then
+  #       ${pkgs.git}/bin/git -C /usr/local/nixos pull --rebase || true
+  #     else
+  #       ${pkgs.git}/bin/git clone https://github.com/adfitzhu/nix.git /usr/local/nixos || true
+  #     fi
+  #   '';
+  # };
+  # systemd.timers.my-auto-upgrade = {
+  #   description = "Run custom NixOS and Flatpak auto-upgrade weekly";
+  #   wantedBy = [ "timers.target" ];
+  #   timerConfig = {
+  #     OnCalendar = "weekly";
+  #     Persistent = true;
+  #   };
+  # };
+
+
   # Use NixOS native btrbk service for hourly snapshots and retention
   services.btrbk.instances = {
     "home" = {

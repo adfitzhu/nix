@@ -29,6 +29,12 @@
 
             ];
             services.sunshine.enable = true;
+            system.autoUpgrade = {
+              enable = true;
+              dates = "weekly";
+              flake = "github:adfitzhu/nix#desktop";
+              allowReboot = false;
+            };
           })
         ];
       };
@@ -54,6 +60,12 @@
               pkgs.kdePackages.yakuake
               pkgs.firefox
             ];
+            system.autoUpgrade = {
+              enable = true;
+              dates = "weekly";
+              flake = "github:adfitzhu/nix#laptop";
+              allowReboot = false;
+            };
           })
         ];
       };
@@ -77,6 +89,12 @@
               pkgs.vscode
               pkgs.wcalc
             ];
+            system.autoUpgrade = {
+              enable = true;
+              dates = "weekly";
+              flake = "github:adfitzhu/nix#generic";
+              allowReboot = false;
+            };
           })
         ];
       };
