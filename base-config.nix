@@ -126,7 +126,7 @@ in
       # Update all Flatpaks
       ${pkgs.flatpak}/bin/flatpak update -y || true
       # Notify users
-      systemctl start notify-users.service 'System Updated' 'NixOS and Flatpak updates have been applied. Please reboot to use the new system.'
+      #systemctl start notify-users.service 'System Updated' 'NixOS and Flatpak updates have been applied. Please reboot to use the new system.'
       # Update local utility repo
       if [ -d /usr/local/nixos/.git ]; then
         ${pkgs.git}/bin/git -C /usr/local/nixos pull --rebase || true
