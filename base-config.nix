@@ -1,17 +1,5 @@
 { config, pkgs, ... }:
 let
-  notifyUsersScript = pkgs.writeShellScript "notify-users.sh" ''
-    set -eu
-    title="$1"
-    body="$2"
-    users=$(${pkgs.systemd}/bin/loginctl list-sessions --no-legend | ${pkgs.gawk}/bin/awk '{print $1}' | while read session; do
-      loginctl show-session "$session" -p Name | cut -d'=' -f2
-    done | sort -u)
-    for user in $users; do
-      export XDG_RUNTIME_DIR="/run/user/$(id -u $user)"
-      sudo -u $user DISPLAY=:0 ${pkgs.libnotify}/bin/notify-send "$title" "$body" -u normal -a "System" -c "system" -t 10000 || true
-    done
-  '';
   myRepoPath = if config ? myRepoPath then config.myRepoPath else "/etc/nixos";
   autoUpgradeFlake = if config ? autoUpgradeFlake then config.autoUpgradeFlake else null;
 in
@@ -138,7 +126,7 @@ in
       # Update all Flatpaks
       ${pkgs.flatpak}/bin/flatpak update -y || true
       # Notify users
-      ${notifyUsersScript} "System Updated" "A new system configuration is ready. Please reboot to apply the update."
+      systemctl start notify-users.service 'System Updated' 'NixOS and Flatpak updates have been applied. Please reboot to use the new system.'
       # Update local utility repo
       if [ -d /usr/local/nixos/.git ]; then
         ${pkgs.git}/bin/git -C /usr/local/nixos pull --rebase || true
@@ -177,4 +165,33 @@ in
     "d /home/.snapshots 0755 root root"
   ];
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  # Notify users systemd service for desktop notifications (Plasma 6/Wayland compatible)
+  systemd.services.notify-users = {
+    description = "Send desktop notification to all logged-in users";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = ''
+        /bin/sh -c '
+          title="${1:-$NOTIFY_TITLE}"; body="${2:-$NOTIFY_BODY}";
+          for session in $(loginctl list-sessions --no-legend | awk "{print \$1}"); do
+            user=$(loginctl show-session "$session" -p Name | cut -d= -f2)
+            uid=$(id -u "$user")
+            runtime_dir="/run/user/$uid"
+            export XDG_RUNTIME_DIR="$runtime_dir"
+            envfile="$runtime_dir/environment"
+            if [ -f "$envfile" ]; then
+              . "$envfile"
+            fi
+            sudo -u "$user" XDG_RUNTIME_DIR="$runtime_dir" \
+              ${pkgs.libnotify}/bin/notify-send "$title" "$body" -u normal -a "System" -c "system" -t 10000 || true
+          done'
+      '';
+      Environment = [
+        "NOTIFY_TITLE=SystemD Notification"
+        "NOTIFY_BODY=Attempting a notification but no arguments were provided."
+      ];
+      PassEnvironment = [ "NOTIFY_TITLE" "NOTIFY_BODY" ];
+    };
+  };
 }
