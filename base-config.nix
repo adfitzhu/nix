@@ -123,7 +123,7 @@ in
       set -euxo pipefail
       # Use autoUpgradeFlake if set, otherwise default to github:adfitzhu/nix#generic
       FLAKE="${if autoUpgradeFlake != null then autoUpgradeFlake else "github:adfitzhu/nix#generic"}"
-      nixos-rebuild switch --upgrade --flake "$FLAKE" --no-write-lock-file --impure 
+      ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --flake "$FLAKE" --no-write-lock-file --impure
       # Update all Flatpaks
       ${pkgs.flatpak}/bin/flatpak update -y || true
       # Update local utility repo
@@ -132,7 +132,6 @@ in
       else
         ${pkgs.git}/bin/git clone https://github.com/adfitzhu/nix.git /usr/local/nixos || true
       fi
-
     '';
   };
   systemd.timers.my-auto-upgrade = {

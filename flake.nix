@@ -72,7 +72,11 @@
               isNormalUser = true;
               extraGroups = [ "networkmanager" "wheel" ];
             };
-            # No extra packages or services for generic
+            environment.systemPackages = [
+              pkgs.git
+              pkgs.vscode
+              pkgs.wcalc
+            ];
           })
         ];
       };
