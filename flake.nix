@@ -29,11 +29,21 @@
 
             ];
             services.sunshine.enable = true;
-            system.autoUpgrade = {
-              enable = true;
-              dates = "weekly";
-              flake = "github:adfitzhu/nix#desktop";
-              allowReboot = false;
+            systemd.services.my-auto-upgrade = {
+              description = "Custom NixOS auto-upgrade (host-specific)";
+              serviceConfig.Type = "oneshot";
+              script = ''
+                set -euxo pipefail
+                ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --flake github:adfitzhu/nix#desktop --no-write-lock-file --impure
+              '';
+            };
+            systemd.timers.my-auto-upgrade = {
+              description = "Run custom NixOS auto-upgrade weekly (host-specific)";
+              wantedBy = [ "timers.target" ];
+              timerConfig = {
+                OnCalendar = "weekly";
+                Persistent = true;
+              };
             };
           })
         ];
@@ -60,11 +70,21 @@
               pkgs.kdePackages.yakuake
               pkgs.firefox
             ];
-            system.autoUpgrade = {
-              enable = true;
-              dates = "weekly";
-              flake = "github:adfitzhu/nix#laptop";
-              allowReboot = false;
+            systemd.services.my-auto-upgrade = {
+              description = "Custom NixOS auto-upgrade (host-specific)";
+              serviceConfig.Type = "oneshot";
+              script = ''
+                set -euxo pipefail
+                ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --flake github:adfitzhu/nix#laptop --no-write-lock-file --impure
+              '';
+            };
+            systemd.timers.my-auto-upgrade = {
+              description = "Run custom NixOS auto-upgrade weekly (host-specific)";
+              wantedBy = [ "timers.target" ];
+              timerConfig = {
+                OnCalendar = "weekly";
+                Persistent = true;
+              };
             };
           })
         ];
@@ -89,11 +109,21 @@
               pkgs.vscode
               pkgs.wcalc
             ];
-            system.autoUpgrade = {
-              enable = true;
-              dates = "weekly";
-              flake = "github:adfitzhu/nix#generic";
-              allowReboot = false;
+            systemd.services.my-auto-upgrade = {
+              description = "Custom NixOS auto-upgrade (host-specific)";
+              serviceConfig.Type = "oneshot";
+              script = ''
+                set -euxo pipefail
+                ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --flake github:adfitzhu/nix#generic --no-write-lock-file --impure
+              '';
+            };
+            systemd.timers.my-auto-upgrade = {
+              description = "Run custom NixOS auto-upgrade weekly (host-specific)";
+              wantedBy = [ "timers.target" ];
+              timerConfig = {
+                OnCalendar = "weekly";
+                Persistent = true;
+              };
             };
           })
         ];
