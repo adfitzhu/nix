@@ -132,10 +132,7 @@ in
       else
         ${pkgs.git}/bin/git clone https://github.com/adfitzhu/nix.git /usr/local/nixos || true
       fi
-      # Send persistent desktop notification
-      if [ -x /usr/local/nixos/notify.sh ]; then
-        /usr/local/nixos/notify.sh || true
-      fi
+
     '';
   };
   systemd.timers.my-auto-upgrade = {
