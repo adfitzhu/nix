@@ -182,7 +182,8 @@ in
             dbus_addr=$(grep -z DBUS_SESSION_BUS_ADDRESS "$runtime_dir/environment" | cut -d= -f2-)
             export DBUS_SESSION_BUS_ADDRESS="$dbus_addr"
             echo "[$(date)] Notifying $user (uid $uid) with XDG_RUNTIME_DIR=$runtime_dir DBUS_SESSION_BUS_ADDRESS=$dbus_addr" >> /tmp/notify-users.log
-            sudo -u "$user" XDG_RUNTIME_DIR="$runtime_dir" DBUS_SESSION_BUS_ADDRESS="$dbus_addr" \
+            # Use full path to sudo to avoid 'command not found' error
+            /run/wrappers/bin/sudo -u "$user" XDG_RUNTIME_DIR="$runtime_dir" DBUS_SESSION_BUS_ADDRESS="$dbus_addr" \
               ${pkgs.libnotify}/bin/notify-send "$title" "$body" -u normal -a "System" -c "system" -t 10000 >> /tmp/notify-users.log 2>&1 || true
           done'
       '';
