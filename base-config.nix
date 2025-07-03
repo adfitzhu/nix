@@ -1,30 +1,29 @@
 { config, pkgs, ... }:
-let
-  myRepoPath = if config ? myRepoPath then config.myRepoPath else "/etc/nixos";
-  autoUpgradeFlake = if config ? autoUpgradeFlake then config.autoUpgradeFlake else null;
-in
 {
   # Shared config for all hosts
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
     kdePackages.discover
     kdePackages.kdesu
     libreoffice
     libnotify
+    kdePackages.kdialog
     flatpak
     vlc
     p7zip
     corefonts
     vista-fonts
     btrfs-progs
+    btrbk
+    btrfs-assistant    
     #rustdesk
+
     google-chrome
-    btrfs-assistant
     wine
     digikam
-    timeshift
-    btrbk
-    kdePackages.kdialog
+
+
   ];
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
@@ -91,61 +90,11 @@ in
   services.fail2ban.enable = true;
   services.tailscale.enable = true;
   virtualisation.waydroid.enable = true;
-  # services.snapper = {
-  #   snapshotInterval = "hourly";
-  #   cleanupInterval = "daily";
-  #   configs = {
-  #     home = {
-  #       SUBVOLUME = "/home";
-  #       TIMELINE_CREATE = true;
-  #       TIMELINE_CLEANUP = true;
-  #       TIMELINE_LIMIT_HOURLY = 6;
-  #       TIMELINE_LIMIT_DAILY = 7;
-  #       TIMELINE_LIMIT_WEEKLY = 4;
-  #       TIMELINE_LIMIT_MONTHLY = 3;
-  #     };
-  #   };
-  # };
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
   system.stateVersion = "25.05";
 
-  # Disable built-in autoUpgrade
-  # system.autoUpgrade.enable = false;
-
-  # Custom auto-upgrade service and timer
-  # systemd.services.my-auto-upgrade = {
-  #   description = "Custom NixOS and Flatpak auto-upgrade";
-  #   serviceConfig.Type = "oneshot";
-  #   path = [ pkgs.git pkgs.nixos-rebuild pkgs.flatpak pkgs.util-linux pkgs.coreutils-full pkgs.systemd pkgs.gawk pkgs.libnotify ];
-  #   script = ''
-  #     set -euxo pipefail
-  #     # Use autoUpgradeFlake if set, otherwise default to github:adfitzhu/nix#generic
-  #     FLAKE="${if autoUpgradeFlake != null then autoUpgradeFlake else "github:adfitzhu/nix#generic"}"
-  #     echo "Auto-upgrade using flake: $FLAKE"
-  #     ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --flake "$FLAKE" --no-write-lock-file --impure
-  #     # Update all Flatpaks
-  #     ${pkgs.flatpak}/bin/flatpak update -y || true
-  #     # Update local utility repo
-  #     if [ -d /usr/local/nixos/.git ]; then
-  #       ${pkgs.git}/bin/git -C /usr/local/nixos pull --rebase || true
-  #     else
-  #       ${pkgs.git}/bin/git clone https://github.com/adfitzhu/nix.git /usr/local/nixos || true
-  #     fi
-  #   '';
-  # };
-  # systemd.timers.my-auto-upgrade = {
-  #   description = "Run custom NixOS and Flatpak auto-upgrade weekly";
-  #   wantedBy = [ "timers.target" ];
-  #   timerConfig = {
-  #     OnCalendar = "weekly";
-  #     Persistent = true;
-  #   };
-  # };
-
-
-  # Use NixOS native btrbk service for hourly snapshots and retention
   services.btrbk.instances = {
     "home" = {
       onCalendar = "hourly";
@@ -166,7 +115,57 @@ in
   systemd.tmpfiles.rules = [
     "d /home/.snapshots 0755 root root"
   ];
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # Custom Flatpak update service and timer
+  systemd.services.flatpak-auto-update = {
+    description = "Auto-update all Flatpaks (silent)";
+    serviceConfig.Type = "oneshot";
+    path = [ pkgs.flatpak ];
+    script = ''
+      set -euxo pipefail
+      LOGFILE="/var/log/flatpak-auto-update.log"
+      # Keep only the last 30 days of logs
+      if [ -f "$LOGFILE" ]; then
+        awk -v d="$(date --date='30 days ago' '+%Y-%m-%d')" 'BEGIN{keep=0} 
+          /^==== [0-9]{4}-[0-9]{2}-[0-9]{2}/ {keep=($2 >= d)} 
+          keep' "$LOGFILE" > "$LOGFILE.tmp" && mv "$LOGFILE.tmp" "$LOGFILE"
+      fi
+      {
+        echo "==== $(date +%F) ===="
+        ${pkgs.flatpak}/bin/flatpak update -y
+      } >> "$LOGFILE" 2>&1
+    '';
+  };
+  systemd.timers.flatpak-auto-update = {
+    description = "Run Flatpak auto-update daily";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "daily";
+      Persistent = true;
+    };
+  };
+
+  # Custom repo update (git clone/pull) service and timer
+  systemd.services.repo-auto-update = {
+    description = "Auto-update /usr/local/nixos repo (git pull/clone)";
+    serviceConfig.Type = "oneshot";
+    path = [ pkgs.git ];
+    script = ''
+      set -euxo pipefail
+      if [ -d /usr/local/nixos/.git ]; then
+        ${pkgs.git}/bin/git -C /usr/local/nixos pull --rebase || true
+      else
+        ${pkgs.git}/bin/git clone https://github.com/adfitzhu/nix.git /usr/local/nixos || true
+      fi
+    '';
+  };
+  systemd.timers.repo-auto-update = {
+    description = "Run repo auto-update weekly";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "weekly";
+      Persistent = true;
+    };
+  };
 
 }
