@@ -48,15 +48,7 @@
       LC_TIME = "en_US.UTF-8";
     };
   };
-  services.xserver.enable = false;
-  services.displayManager = {
-    sddm.enable = true;
-    sddm.wayland.enable = true;
-    autoLogin = {
-      enable = true;
-      user = "adam";
-    };
-  };
+
   services.desktopManager.plasma6.enable = true;
   services.printing = {
     enable = true;

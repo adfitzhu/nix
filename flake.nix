@@ -28,6 +28,15 @@
               pkgs.vscode
 
             ];
+            services.xserver.enable = false;
+            services.displayManager = {
+              sddm.enable = true;
+              sddm.wayland.enable = true;
+              autoLogin = {
+                enable = true;
+                user = "adam";
+              };
+            };
             services.sunshine.enable = true;
             systemd.services.my-auto-upgrade = {
               description = "Custom NixOS auto-upgrade (host-specific)";
@@ -70,6 +79,15 @@
               pkgs.kdePackages.yakuake
               pkgs.firefox
             ];
+            services.xserver.enable = false;
+            services.displayManager = {
+              sddm.enable = true;
+              sddm.wayland.enable = true;
+              autoLogin = {
+                enable = true;
+                user = "adam";
+              };
+            };
             systemd.services.my-auto-upgrade = {
               description = "Custom NixOS auto-upgrade (host-specific)";
               serviceConfig.Type = "oneshot";
@@ -109,6 +127,15 @@
               pkgs.vscode
               pkgs.wcalc
             ];
+            services.xserver.enable = false;
+            services.displayManager = {
+              sddm.enable = true;
+              sddm.wayland.enable = true;
+              autoLogin = {
+                enable = true;
+                user = "adam";
+              };
+            };
             systemd.services.my-auto-upgrade = {
               description = "Custom NixOS auto-upgrade (host-specific)";
               serviceConfig.Type = "oneshot";
