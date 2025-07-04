@@ -25,15 +25,13 @@ FLATPAK_GROUPS = {
         "io.github.JaGoLi.ytdl_gui", 
     ],
     "gaming": [
-        "com.valvesoftware.Steam",
         "com.usebottles.bottles",
         "com.heroicgameslauncher.hgl",
         "net.supertuxkart.SuperTuxKart",
         "com.discordapp.Discord",
     ],
     "3d_printing": [
-        "org.freecadweb.FreeCAD",
-        "com.softfever.OrcaSlicer", 
+        "org.freecad.FreeCAD"
     ],
     "video_capture": [
         "com.obsproject.Studio",

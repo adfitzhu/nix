@@ -23,6 +23,7 @@
     python3Full
     qt6.full
     wine
+    steam-run
   ];
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
