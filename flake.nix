@@ -24,8 +24,7 @@
               extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" ];
             };
             environment.systemPackages = [
-              pkgs.git
-              pkgs.vscode
+              pkgs.kdePackages.yakuake
               pkgs.orca-slicer
 
             ];
@@ -80,11 +79,10 @@
               extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" ];
             };
             environment.systemPackages = [
+              pkgs.kdePackages.yakuake
               pkgs.git
               pkgs.vscode
-              pkgs.clonehero
-              pkgs.kdePackages.yakuake
-              pkgs.firefox
+ 
             ];
             services.xserver.enable = false;
             services.displayManager = {
@@ -130,8 +128,6 @@
               extraGroups = [ "networkmanager" "wheel" ];
             };
             environment.systemPackages = [
-              pkgs.git
-              pkgs.vscode
               pkgs.wcalc
             ];
             services.xserver.enable = false;
