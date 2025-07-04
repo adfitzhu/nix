@@ -18,13 +18,11 @@
     btrfs-progs
     btrbk
     btrfs-assistant    
+    kdePackages.filelight
     rustdesk
-
-    google-chrome
+    python3Full
+    qt6.full
     wine
-    digikam
-
-
   ];
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
@@ -161,4 +159,5 @@
     };
   };
 
+  programs.nix-ld.enable = true;
 }
