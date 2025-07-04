@@ -10,6 +10,7 @@
     libnotify
     kdePackages.kdialog
     flatpak
+    git
     vlc
     p7zip
     corefonts
@@ -17,7 +18,7 @@
     btrfs-progs
     btrbk
     btrfs-assistant    
-    #rustdesk
+    rustdesk
 
     google-chrome
     wine
