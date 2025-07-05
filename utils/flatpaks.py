@@ -1,8 +1,8 @@
 # flatpaks.py
-# List of Flatpak groups and their Flatpak IDs (all IDs verified on Flathub July 2025)
+# List of Flatpak groups and their Flatpak IDs 
 
 FLATPAK_GROUPS = {
-    "basic": [
+    "Basic": [
         "org.mozilla.firefox",
         "com.microsoft.Edge",
         "com.google.Chrome",
@@ -17,23 +17,27 @@ FLATPAK_GROUPS = {
         "com.nextcloud.desktopclient.nextcloud",
         "com.github.tchx84.Flatseal", 
     ],
-    "video_processing": [
+    "Video Capture": [
+        "com.obsproject.Studio",
+        "com.obsproject.Studio.Plugin.DroidCam"
+    ],
+    "Video Processing": [
         "org.kde.kdenlive",
         "fr.handbrake.ghb",
         "com.makemkv.MakeMKV",
         "io.github.JaGoLi.ytdl_gui", 
     ],
-    "gaming": [
+    "Gaming": [
         "com.usebottles.bottles",
         "com.heroicgameslauncher.hgl",
         "net.supertuxkart.SuperTuxKart",
         "com.discordapp.Discord",
     ],
-    "3d_printing": [
+    "3d Printing": [
         "org.freecad.FreeCAD"
     ],
-    "video_capture": [
-        "com.obsproject.Studio",
-        "com.obsproject.Studio.Plugin.DroidCam"
-    ],
+    "Coding": [
+        "com.visualstudio.code"
+    ]
+
 }

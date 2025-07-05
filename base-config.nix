@@ -30,7 +30,7 @@
     python3Full
     qt6.full
     wine
-    steam-run
+    #steam-run
   ];
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
@@ -89,7 +89,7 @@
   services.fail2ban.enable = true;
   services.tailscale.enable = true;
   virtualisation.waydroid.enable = true;
-  services.syncthing.enable = {
+  services.syncthing = {
     enable = true;
     openDefaultPorts = true;
   };
@@ -165,6 +165,12 @@
       Persistent = true;
     };
   };
+
+nix.gc = {
+  automatic = true;
+  dates = "weekly";
+  options = "--delete-older-than 30d";
+};
 
 
 }
