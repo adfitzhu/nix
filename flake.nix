@@ -112,6 +112,56 @@
           })
         ];
       };
+      beth-laptop = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./hardware-configuration.nix
+          ({ ... }: {
+            _module.args = {
+              autoUpgradeFlake = "github:adfitzhu/nix#beth-laptop";
+            };
+          })
+          ./base-config.nix
+          ({ pkgs, ... }: {
+            networking.hostName = "beth-laptop";
+            users.users.beth = {
+              isNormalUser = true;
+              extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" ];
+            };
+            environment.systemPackages = [
+              pkgs.kdePackages.yakuake
+              pkgs.git
+              pkgs.vscode
+ 
+            ];
+            services.xserver.enable = false;
+            services.displayManager = {
+              sddm.enable = true;
+              sddm.wayland.enable = true;
+              autoLogin = {
+                enable = true;
+                user = "beth";
+              };
+            };
+            systemd.services.my-auto-upgrade = {
+              description = "Custom NixOS auto-upgrade (host-specific)";
+              serviceConfig.Type = "oneshot";
+              script = ''
+                set -euxo pipefail
+                ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --flake github:adfitzhu/nix#laptop --no-write-lock-file --impure
+              '';
+            };
+            systemd.timers.my-auto-upgrade = {
+              description = "Run custom NixOS auto-upgrade weekly (host-specific)";
+              wantedBy = [ "timers.target" ];
+              timerConfig = {
+                OnCalendar = "weekly";
+                Persistent = true;
+              };
+            };
+          })
+        ];
+      };
       generic = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [

@@ -6,7 +6,6 @@ FLATPAK_GROUPS = {
         "org.mozilla.firefox",
         "com.microsoft.Edge",
         "com.google.Chrome",
-        #"org.winehq.Wine", 
         "org.kde.digikam",
         "org.audacityteam.Audacity",
         "org.kde.audiotube",

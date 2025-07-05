@@ -3,6 +3,13 @@
   # Shared config for all hosts
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
+  programs.nix-ld.enable = true;
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.configurationLimit = 10;
+  boot.loader.efi.canTouchEfiVariables = true;
+  system.stateVersion = "25.05";
+
+
   environment.systemPackages = with pkgs; [
     kdePackages.discover
     kdePackages.kdesu
@@ -82,11 +89,10 @@
   services.fail2ban.enable = true;
   services.tailscale.enable = true;
   virtualisation.waydroid.enable = true;
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.systemd-boot.configurationLimit = 10;
-  boot.loader.efi.canTouchEfiVariables = true;
-  system.stateVersion = "25.05";
-
+  services.syncthing.enable = {
+    enable = true;
+    openDefaultPorts = true;
+  };
   services.btrbk.instances = {
     "home" = {
       onCalendar = "hourly";
@@ -160,5 +166,5 @@
     };
   };
 
-  programs.nix-ld.enable = true;
+
 }
