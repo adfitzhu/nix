@@ -4,9 +4,11 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     flake-utils.url = "github:numtide/flake-utils";
+    home-manager.url = "github:nix-community/home-manager/release-25.05";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, ... }: {
+  outputs = { self, nixpkgs, home-manager, ... }: {
     nixosConfigurations = {
       desktop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -26,7 +28,6 @@
             environment.systemPackages = [
               pkgs.kdePackages.yakuake
               pkgs.orca-slicer
-
             ];
             services.xserver.enable = false;
             services.displayManager = {
@@ -39,9 +40,9 @@
             };
             programs.steam = {
               enable = true;
-              remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
-              dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
-              localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
+              remotePlay.openFirewall = true;
+              dedicatedServer.openFirewall = true;
+              localNetworkGameTransfers.openFirewall = true;
             };
             services.sunshine.enable = true;
             systemd.services.my-auto-upgrade = {
@@ -61,6 +62,13 @@
               };
             };
           })
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.adam = import ./home/adam/home.nix;
+            home-manager.users.beth = import ./home/beth/home.nix;
+          }
         ];
       };
       laptop = nixpkgs.lib.nixosSystem {
@@ -82,15 +90,7 @@
               pkgs.kdePackages.yakuake
               pkgs.git
               pkgs.vscode
- 
             ];
-            
-            services.syncthing = {
-              enable = true;
-              user = "adam";
-              openDefaultPorts = true;
-            };
-
             services.xserver.enable = false;
             services.displayManager = {
               sddm.enable = true;
@@ -117,6 +117,13 @@
               };
             };
           })
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.adam = import ./home/adam/home.nix;
+            home-manager.users.beth = import ./home/beth/home.nix;
+          }
         ];
       };
       beth-laptop = nixpkgs.lib.nixosSystem {
@@ -139,7 +146,6 @@
               pkgs.kdePackages.yakuake
               pkgs.git
               pkgs.vscode
- 
             ];
             services.xserver.enable = false;
             services.displayManager = {
