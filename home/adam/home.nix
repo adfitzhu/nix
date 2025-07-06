@@ -1,27 +1,52 @@
-{ pkgs, ... }: {
+{ pkgs, ... }: 
+let
+  syncthingVersioning = {
+    type = "staggered";
+    params = {
+      keep = 3; # Keep the last 5 versions
+      cleanInterval = "3600";
+      maxAge = "2592000"; # 30 days
+    };
+  };
+in
+{
   home.stateVersion = "25.05";
+
  # services.nextcloud-client.enable = true;
 
   services.syncthing = {
     enable = true;
+    tray.enable = true;
     overrideFolders = false;
     overrideDevices = false;
     settings = {
+      options = {
+        extraFlags = [ "--no-default-folder" ];
+      };
       devices = {
-        "other-device" = {
+        server = {
           id = "MRRPBZ3-VNO336P-4MBXUJC-265FSLR-UTRAQHR-QWVKXAK-4AQGXHE-5XWTDAH";
+          introducer = true; # Allow this device to introduce new devices
         };
       };
       folders = {
-        "d5vdra-wsih4" = {
+        "adam_documents" = {
           path = "/home/adam/Documents";
-          devices = [ "MRRPBZ3-VNO336P-4MBXUJC-265FSLR-UTRAQHR-QWVKXAK-4AQGXHE-5XWTDAH" ];
+          devices = [ "server" ];
           label = "Adam's Documents"; # This is the friendly name shown in the UI
+          versioning = syncthingVersioning;
         };
-        "cn6bf-ym49z" = {
+        "adam_music" = {
           path = "/home/adam/Music";
-          devices = [ "MRRPBZ3-VNO336P-4MBXUJC-265FSLR-UTRAQHR-QWVKXAK-4AQGXHE-5XWTDAH" ];
+          devices = [ "server" ];
           label = "Adam's Music"; # This is the friendly name shown in the UI
+          versioning = syncthingVersioning;
+        };
+        "pictures" = {
+          path = "/home/adam/Pictures";
+          devices = [ "server" ];
+          label = "Pictures"; # This is the friendly name shown in the UI
+          versioning = syncthingVersioning;
         };
       };
     };
