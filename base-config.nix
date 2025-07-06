@@ -30,7 +30,9 @@
     python3Full
     qt6.full
     wine
-    #steam-run
+    steam-run
+    syncthingtray
+    firefox
   ];
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
@@ -89,10 +91,7 @@
   services.fail2ban.enable = true;
   services.tailscale.enable = true;
   virtualisation.waydroid.enable = true;
-  services.syncthing = {
-    enable = true;
-    openDefaultPorts = true;
-  };
+    
   services.btrbk.instances = {
     "home" = {
       onCalendar = "hourly";

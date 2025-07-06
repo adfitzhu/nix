@@ -84,6 +84,13 @@
               pkgs.vscode
  
             ];
+            
+            services.syncthing = {
+              enable = true;
+              user = "adam";
+              openDefaultPorts = true;
+            };
+
             services.xserver.enable = false;
             services.displayManager = {
               sddm.enable = true;
