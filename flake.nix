@@ -67,7 +67,6 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.adam = import ./home/adam/home.nix;
-            home-manager.users.beth = import ./home/beth/home.nix;
           }
         ];
       };
@@ -122,7 +121,6 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.adam = import ./home/adam/home.nix;
-            home-manager.users.beth = import ./home/beth/home.nix;
           }
         ];
       };
@@ -140,8 +138,10 @@
             networking.hostName = "beth-laptop";
             users.users.beth = {
               isNormalUser = true;
+              group = "beth";
               extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" ];
             };
+            users.groups.beth = {};
             environment.systemPackages = [
               pkgs.kdePackages.yakuake
               pkgs.git
@@ -173,6 +173,12 @@
               };
             };
           })
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.beth = import ./home/beth/home.nix;
+          }
         ];
       };
       generic = nixpkgs.lib.nixosSystem {
