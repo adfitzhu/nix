@@ -32,7 +32,8 @@
     wine
     steam-run
     syncthingtray
-    firefox
+    #firefox
+    google-chrome
   ];
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
