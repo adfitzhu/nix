@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Service
 ServiceTypes=KonqPopupMenu/Plugin
-MimeType=all/all;
+MimeType=all/all;inode/directory;
 Actions=showversions
 X-KDE-Priority=TopLevel
 
