@@ -172,5 +172,5 @@ nix.gc = {
   options = "--delete-older-than 30d";
 };
 
-
+  imports = [ ./dolphin-versions/dolphin-versions.nix ];
 }

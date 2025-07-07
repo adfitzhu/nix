@@ -1,14 +1,5 @@
 { pkgs, ... }: 
-let
-  syncthingVersioning = {
-    type = "staggered";
-    params = {
-      keep = 3; # Keep the last 5 versions
-      cleanInterval = "3600";
-      maxAge = "2592000"; # 30 days
-    };
-  };
-in
+  
 {
   home.stateVersion = "25.05";
 
@@ -34,19 +25,19 @@ in
           path = "/home/adam/Documents";
           devices = [ "server" ];
           label = "Adam's Documents"; # This is the friendly name shown in the UI
-          versioning = syncthingVersioning;
+
         };
         "adam_music" = {
           path = "/home/adam/Music";
           devices = [ "server" ];
           label = "Adam's Music"; # This is the friendly name shown in the UI
-          versioning = syncthingVersioning;
+
         };
         "pictures" = {
           path = "/home/adam/Pictures";
           devices = [ "server" ];
           label = "Pictures"; # This is the friendly name shown in the UI
-          versioning = syncthingVersioning;
+
         };
       };
     };
