@@ -28,7 +28,7 @@
     kdePackages.filelight
     rustdesk
     python3Full
-    qt6.full
+    python3Packages.pyqt6
     wine
     steam-run
     syncthingtray
