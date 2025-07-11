@@ -27,8 +27,8 @@ class VersionDialog(tk.Tk):
         # Column headers
         header_frame = ttk.Frame(self)
         header_frame.pack(pady=(4,0), fill=tk.X)
-        tk.Label(header_frame, text="Modified", font=("Arial", 10, "bold"), width=8, anchor="center").pack(side=tk.LEFT, padx=(8,0))
-        tk.Label(header_frame, text="Snapshot Date", font=("Arial", 10, "bold"), anchor="w").pack(side=tk.LEFT, padx=(40,0))
+        tk.Label(header_frame, text="Snapshot Date", font=("Arial", 10, "bold"), anchor="w").pack(side=tk.LEFT, padx=(8,0))
+        tk.Label(header_frame, text="Modified", font=("Arial", 10, "bold"), width=14, anchor="center").pack(side=tk.LEFT, padx=(60,0))
         # Single listbox with star spacing and alternating row colors
         frame = ttk.Frame(self)
         frame.pack(pady=2, fill=tk.BOTH, expand=True)
@@ -53,10 +53,8 @@ class VersionDialog(tk.Tk):
         self.listbox.delete(0, tk.END)
         if not self.versions:
             self.versions = [{'display': "No snapshots found", 'path': None, 'is_unique': False}]
-        # Use Arial font and pad with spaces for alignment
         for i, v in enumerate(self.versions):
-            star = '★' if v.get('is_unique') else ' '
-            label = f"   {star}          {v['display']}"  # 3 spaces before, 10 after star
+            label = f"   {v['display']}"  # 3 spaces before text
             self.listbox.insert(tk.END, label)
             # Alternate row color
             if i % 2 == 0:
@@ -109,36 +107,62 @@ def get_snapshot_versions(target_path, mode="unique"):
         current_mtime = current_stat.st_mtime
     except Exception:
         current_mtime = None
-    seen_mtimes = set()
-    version_tuples = []
+    snapshots = []
     for snap in sorted(os.listdir(snapdir)):
         snap_path = os.path.join(snapdir, snap, rel)
         if os.path.exists(snap_path):
             try:
                 stat = os.stat(snap_path)
                 mtime = stat.st_mtime
-                if mtime == current_mtime:
-                    continue
-                is_unique = False
-                if mode == "unique":
-                    if mtime in seen_mtimes:
-                        continue
-                    seen_mtimes.add(mtime)
-                    is_unique = True
+                # Parse snapshot date from directory name
+                snap_date = ""
+                parts = snap.split(".")
+                if len(parts) > 1 and len(parts[-1]) >= 9:
+                    snap_date_raw = parts[-1]
+                    try:
+                        snap_date_dt = datetime.datetime.strptime(snap_date_raw, "%Y%m%dT%H%M")
+                        snap_date = snap_date_dt.strftime("%Y-%m-%d %H:%M")
+                    except Exception:
+                        snap_date = snap_date_raw
                 else:
-                    if mtime not in seen_mtimes:
-                        is_unique = True
-                        seen_mtimes.add(mtime)
-                version_tuples.append((mtime, snap_path, is_unique))
+                    snap_date_dt = None
+                snapshots.append({
+                    'snapshot': snap,
+                    'snapshot_date': snap_date,
+                    'snapshot_date_dt': snap_date_dt if 'snap_date_dt' in locals() else None,
+                    'modified_time': mtime,
+                    'path': snap_path
+                })
             except Exception:
                 continue
-    version_tuples.sort(reverse=True, key=lambda x: x[0])
-    versions = []
-    for mtime, snap_path, is_unique in version_tuples:
-        dt = datetime.datetime.fromtimestamp(mtime)
-        display = dt.strftime('%b %d %Y %-I:%M%p').replace('AM','am').replace('PM','pm')
-        versions.append({'display': display, 'path': snap_path, 'is_unique': is_unique})
-    return versions
+    # Sort by snapshot date descending (latest first)
+    snapshots = [s for s in snapshots if s['snapshot_date_dt'] is not None]
+    snapshots.sort(key=lambda x: x['snapshot_date_dt'], reverse=True)
+    # Prepare display list
+    all_versions = []
+    for snap in snapshots:
+        mod_display = datetime.datetime.fromtimestamp(snap['modified_time']).strftime('%b %d %Y %-I:%M%p').replace('AM','am').replace('PM','pm')
+        display = f"{snap['snapshot_date']}    {mod_display}"
+        all_versions.append({
+            'display': display,
+            'path': snap['path'],
+            'is_unique': False,
+            'modified_time': snap['modified_time']
+        })
+    if mode == "all":
+        return all_versions
+    # Filter for unique modified times (not current, and not duplicate mtimes)
+    seen_mtimes = set()
+    unique_versions = []
+    for v in all_versions:
+        if v['modified_time'] == current_mtime:
+            continue
+        if v['modified_time'] in seen_mtimes:
+            continue
+        seen_mtimes.add(v['modified_time'])
+        v['is_unique'] = True
+        unique_versions.append(v)
+    return unique_versions
 
 def main():
     if len(sys.argv) < 2:
