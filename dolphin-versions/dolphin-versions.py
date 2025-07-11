@@ -49,18 +49,30 @@ class VersionDialog(tk.Tk):
         self.reload_versions()
     def reload_versions(self):
         mode = self.mode_var.get()
-        self.versions = get_snapshot_versions(self.target_path, mode)
+        all_versions = get_snapshot_versions(self.target_path, mode="all")
+        unique_versions = get_snapshot_versions(self.target_path, mode="unique")
+        if mode == "all":
+            self.versions = all_versions
+            unique_mtimes = set(v['modified_time'] for v in unique_versions)
+        else:
+            self.versions = unique_versions
+            unique_mtimes = set(v['modified_time'] for v in unique_versions)
         self.listbox.delete(0, tk.END)
         if not self.versions:
-            self.versions = [{'display': "No snapshots found", 'path': None, 'is_unique': False}]
+            self.versions = [{'display': "No snapshots found", 'path': None, 'is_unique': False, 'modified_time': None}]
+        seen_mtimes = set()
         for i, v in enumerate(self.versions):
-            label = f"   {v['display']}"  # 3 spaces before text
+            label = f"   {v['display']}"
             self.listbox.insert(tk.END, label)
-            # Alternate row color
-            if i % 2 == 0:
-                self.listbox.itemconfig(i, bg="#f0f0f0")
+            # In 'all' mode, only the first occurrence of a unique modified date is blue
+            if mode == "all":
+                if v.get('modified_time') in unique_mtimes and v.get('modified_time') not in seen_mtimes:
+                    self.listbox.itemconfig(i, bg="#e0e6f8", fg="#000000")
+                    seen_mtimes.add(v.get('modified_time'))
+                else:
+                    self.listbox.itemconfig(i, bg="#f0f0f0", fg="#000000")
             else:
-                self.listbox.itemconfig(i, bg="#e0e6f8")
+                self.listbox.itemconfig(i, bg="#e0e6f8", fg="#000000")
     def on_mode_change(self):
         self.reload_versions()
     def open_clicked(self):
