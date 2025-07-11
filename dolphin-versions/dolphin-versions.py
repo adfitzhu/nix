@@ -41,13 +41,19 @@ class VersionDialog(tk.Tk):
         btn_frame.pack(pady=10)
         style = ttk.Style(self)
         style.configure("TButton", padding=4, font=("Arial", 10), width=9)
-        open_btn = ttk.Button(btn_frame, text="Open", command=self.open_clicked, style="TButton")
-        open_btn.pack(side=tk.LEFT, padx=8)
-        parent_btn = ttk.Button(btn_frame, text="Open Parent Folder", command=self.open_parent_folder_clicked, style="TButton")
-        parent_btn.pack(side=tk.LEFT, padx=8)
-        parent_btn.config(width=18)  # Make the button wider
-        restore_btn = ttk.Button(btn_frame, text="Restore", command=self.restore_clicked, style="TButton")
-        restore_btn.pack(side=tk.LEFT, padx=8)
+        self.open_btn = ttk.Button(btn_frame, text="Open", command=self.open_clicked, style="TButton")
+        self.open_btn.pack(side=tk.LEFT, padx=8)
+        self.parent_btn = ttk.Button(btn_frame, text="Open Parent Folder", command=self.open_parent_folder_clicked, style="TButton")
+        self.parent_btn.pack(side=tk.LEFT, padx=8)
+        self.parent_btn.config(width=18)  # Make the button wider
+        self.restore_btn = ttk.Button(btn_frame, text="Restore", command=self.restore_clicked, style="TButton")
+        self.restore_btn.pack(side=tk.LEFT, padx=8)
+        # Disable buttons initially
+        self.open_btn.state(["disabled"])
+        self.parent_btn.state(["disabled"])
+        self.restore_btn.state(["disabled"])
+        # Bind selection event
+        self.listbox.bind('<<ListboxSelect>>', self.on_listbox_select)
         self.versions = []
         self.reload_versions()
     def reload_versions(self):
@@ -77,6 +83,10 @@ class VersionDialog(tk.Tk):
             else:
                 self.listbox.itemconfig(i, bg="#e0e6f8", fg="#000000")
     def on_mode_change(self):
+        # Disable buttons when changing mode
+        self.open_btn.state(["disabled"])
+        self.parent_btn.state(["disabled"])
+        self.restore_btn.state(["disabled"])
         self.reload_versions()
     def open_clicked(self):
         sel = self.listbox.curselection()
@@ -123,6 +133,16 @@ class VersionDialog(tk.Tk):
                 except Exception as e:
                     messagebox.showerror("Error", f"Failed to restore file: {e}")
             self.destroy()
+    def on_listbox_select(self, event=None):
+        sel = self.listbox.curselection()
+        if sel and self.versions and self.versions[sel[0]].get('path'):
+            self.open_btn.state(["!disabled"])
+            self.parent_btn.state(["!disabled"])
+            self.restore_btn.state(["!disabled"])
+        else:
+            self.open_btn.state(["disabled"])
+            self.parent_btn.state(["disabled"])
+            self.restore_btn.state(["disabled"])
 
 def get_snapshot_versions(target_path, mode="unique"):
     snapdir = "/home/.snapshots"
