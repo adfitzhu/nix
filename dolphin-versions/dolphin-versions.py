@@ -14,8 +14,19 @@ class VersionDialog(tk.Tk):
         self.title("Select Version")
         self.selected_index = None
         self.selected_action = None
-        self.geometry("340x300")
+        self.geometry("340x370")
         self.target_path = target_path
+        # Show filename above radio buttons
+        filename_label = ttk.Label(self, text=os.path.basename(self.target_path), font=("Arial", 11, "bold"))
+        filename_label.pack(pady=(10, 0))
+        # Show last modified date below filename
+        try:
+            mtime = os.path.getmtime(self.target_path)
+            mtime_str = datetime.datetime.fromtimestamp(mtime).strftime('%b %d %Y %-I:%M%p').replace('AM','am').replace('PM','pm')
+        except Exception:
+            mtime_str = "Unknown"
+        lastmod_label = ttk.Label(self, text=f"Last Modified: {mtime_str}", font=("Arial", 10))
+        lastmod_label.pack(pady=(0, 6))
         # Radio buttons for mode selection
         radio_frame = ttk.Frame(self)
         radio_frame.pack(pady=4)
@@ -188,8 +199,10 @@ def get_snapshot_versions(target_path, mode="unique"):
     # Prepare display list
     all_versions = []
     for snap in snapshots:
+        # Format both snapshot and modified date the same way
+        snap_display = snap['snapshot_date_dt'].strftime('%b %d %Y %-I:%M%p').replace('AM','am').replace('PM','pm') if snap['snapshot_date_dt'] else snap['snapshot_date']
         mod_display = datetime.datetime.fromtimestamp(snap['modified_time']).strftime('%b %d %Y %-I:%M%p').replace('AM','am').replace('PM','pm')
-        display = f"{snap['snapshot_date']}    {mod_display}"
+        display = f"{snap_display}    {mod_display}"
         all_versions.append({
             'display': display,
             'path': snap['path'],
