@@ -20,7 +20,7 @@ class VersionDialog(tk.Tk):
         radio_frame = ttk.Frame(self)
         radio_frame.pack(pady=4)
         self.mode_var = tk.StringVar(value="unique")
-        unique_radio = ttk.Radiobutton(radio_frame, text="Unique Snapshots", variable=self.mode_var, value="unique", command=self.on_mode_change)
+        unique_radio = ttk.Radiobutton(radio_frame, text="Unique Versions", variable=self.mode_var, value="unique", command=self.on_mode_change)
         all_radio = ttk.Radiobutton(radio_frame, text="All Snapshots", variable=self.mode_var, value="all", command=self.on_mode_change)
         unique_radio.pack(side=tk.LEFT, padx=6)
         all_radio.pack(side=tk.LEFT, padx=6)
@@ -43,6 +43,9 @@ class VersionDialog(tk.Tk):
         style.configure("TButton", padding=4, font=("Arial", 10), width=9)
         open_btn = ttk.Button(btn_frame, text="Open", command=self.open_clicked, style="TButton")
         open_btn.pack(side=tk.LEFT, padx=8)
+        parent_btn = ttk.Button(btn_frame, text="Open Parent Folder", command=self.open_parent_folder_clicked, style="TButton")
+        parent_btn.pack(side=tk.LEFT, padx=8)
+        parent_btn.config(width=18)  # Make the button wider
         restore_btn = ttk.Button(btn_frame, text="Restore", command=self.restore_clicked, style="TButton")
         restore_btn.pack(side=tk.LEFT, padx=8)
         self.versions = []
@@ -59,7 +62,7 @@ class VersionDialog(tk.Tk):
             unique_mtimes = set(v['modified_time'] for v in unique_versions)
         self.listbox.delete(0, tk.END)
         if not self.versions:
-            self.versions = [{'display': "No snapshots found", 'path': None, 'is_unique': False, 'modified_time': None}]
+            self.versions = [{'display': "No different versions found", 'path': None, 'is_unique': False, 'modified_time': None}]
         seen_mtimes = set()
         for i, v in enumerate(self.versions):
             label = f"   {v['display']}"
@@ -86,6 +89,18 @@ class VersionDialog(tk.Tk):
                 except Exception as e:
                     messagebox.showerror("Error", f"Failed to open file: {e}")
             self.destroy()
+    def open_parent_folder_clicked(self):
+        sel = self.listbox.curselection()
+        if sel:
+            idx = sel[0]
+            snap_path = self.versions[idx]['path']
+            if snap_path:
+                parent_dir = os.path.dirname(snap_path)
+                try:
+                    subprocess.Popen(["xdg-open", parent_dir])
+                except Exception as e:
+                    messagebox.showerror("Error", f"Failed to open folder: {e}")
+        self.destroy()
     def restore_clicked(self):
         sel = self.listbox.curselection()
         if sel:
