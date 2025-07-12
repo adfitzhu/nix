@@ -1,11 +1,23 @@
-{ config, pkgs, ... }:
-let
-  dolphinVersionsBin = pkgs.writeScriptBin "dolphin-versions.py" (builtins.readFile ./dolphin-versions.py);
-in
-{
-  # Install the service menu system-wide for Plasma 6
-  environment.etc."usr/share/kio/servicemenus/Versions.desktop".source = ./Versions.desktop;
+{ pkgs, ... }:
 
-  # Install the script as an executable in PATH
-  environment.systemPackages = [ dolphinVersionsBin ];
+pkgs.stdenv.mkDerivation {
+  pname = "dolphin-versions";
+  version = "1.0";
+
+  src = ./.;
+
+  installPhase = ''
+    mkdir -p $out/bin
+    mkdir -p $out/share/kio/servicemenus
+
+    cp dolphin-versions.py $out/bin/dolphin-versions.py
+    chmod +x $out/bin/dolphin-versions.py
+
+    cp Versions.desktop $out/share/kio/servicemenus/Versions.desktop
+  '';
+
+  meta = {
+    description = "Dolphin Versions integration";
+    platforms = pkgs.lib.platforms.linux;
+  };
 }
