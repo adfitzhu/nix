@@ -32,7 +32,7 @@
     wine
     steam-run
     syncthingtray
-    #firefox
+    firefox
     google-chrome
     (import ./utils/dolphin-versions/dolphin-versions.nix { inherit pkgs; })
   ];
