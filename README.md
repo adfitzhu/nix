@@ -1,47 +1,44 @@
 > **Inspiration:** This project was inspired by [nixbook](https://github.com/mkellyxp/nixbook). I liked the idea of the nixbook but wanted to make my own version using KDE and some specific apps for my users' needs.
 
-# nix
-
-> **Note:** You must run `install.sh` as root. On the NixOS live ISO, you are already root by default, so you do not need to use `sudo` or enter a password.
 
 ## Automated Install Procedure
 
-This guide will help you install NixOS using this flake-based configuration, fully automated with `install.sh`.
+This guide will help you install NixOS using this flake-based configuration, fully automated with `autoinstall.sh`.
 
 ### Step 1: Prepare the Live Environment
 - Boot the target machine with the latest NixOS **graphical installer ISO**.
 - Connect to WiFi using the network applet in the system tray.
-- Open a terminal.
+- Open Konsole
 
 ### Step 2: Clone this repository to the correct location
 ```sh
-git clone https://github.com/adfitzhu/nix /mnt/etc/nixos
-cd /mnt/etc/nixos
+git clone https://github.com/adfitzhu/nix /tmp/nix
 ```
-> **Note:** The installer expects the repo to be at `/mnt/etc/nixos` so it can find `install.sh` and all config files.
 
 ### Step 3: Run the installer
 ```sh
-sh install.sh
+sudo sh /tmp/nix/install/autoinstall.sh
 ```
 
 ### Step 4: Follow the prompts
-- Select the system configuration you want to use (e.g., `gaming`, `laptop`) from a numbered menu.
-- Enter your desired username, password, and hostname.
 - Select the target drive from a numbered menu (e.g., `/dev/sda`).
-- Confirm that you want to erase the selected drive.
+- Verify the right one is listed and confirm deleting the entire thing by typing yes
+- Enter a value for the swap partition size in GB. Entering 0 results in no swap.
+- Select the system configuration you want to use (e.g., `gaming`, `laptop`) from a numbered menu.
 
 ### Step 5: Wait for the script to finish
-- The script will partition and format the drive, generate hardware config, set up user and hostname, install NixOS, set your user and root password, and reboot.
+- The script will partition and format the drive, generate hardware config, install NixOS, 
 
-### Step 6: Run the Setup script on your Desktop
-- After rebooting and logging in, double-click the **Setup** icon on your Desktop to complete extra configuration (such as Tailscale setup and more).
+### Step 6: Set passwords
+- When the install finishes, it will prompt for a root password and passwords for any configured users.
+- Once passwords are set, install is complete and you can reboot.
+
+### Step 7: Run the Setup script on your Desktop
+- After rebooting and logging in, double-click the **Setup** icon on your Desktop to complete extra configuration.  It will install default flatpaks, set up tailscale, and more.
 
 ### Notes
 - **All data on the selected drive will be erased.**
-- The script expects a valid `disko-config.nix` in the repo root for partitioning.
-- If you want to customize packages or services, edit the flake files before running the installer.
-- After reboot, log in with the username and password you set during installation. The root password will be the same as the user password (you can change it later).
+- This setup is intended for personal my personal use.  If you've found this and want to use it, feel free to clone it and modify for your own systems or users.  You can also test it out by using the generic option at install.
 
 ---
 
