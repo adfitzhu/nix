@@ -34,6 +34,7 @@
     syncthingtray
     #firefox
     google-chrome
+    (import ./utils/dolphin-versions/dolphin-versions.nix { inherit pkgs; })
   ];
   services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
@@ -171,6 +172,4 @@ nix.gc = {
   dates = "weekly";
   options = "--delete-older-than 30d";
 };
-
-  imports = [ ./utils/dolphin-versions/dolphin-versions.nix ];
 }
