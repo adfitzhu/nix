@@ -38,7 +38,7 @@ sudo sh /tmp/nix/install/autoinstall.sh
 
 ### Notes
 - **All data on the selected drive will be erased.**
-- This setup is intended for personal my personal use.  If you've found this and want to use it, feel free to clone it and modify for your own systems or users.  You can also test it out by using the generic option at install.
+- This setup is intended for my personal use.  If you've found this and want to use it, feel free to clone it and modify for your own systems or users.  You can also test it out by using the generic option at install.
 
 ---
 
