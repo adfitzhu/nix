@@ -35,7 +35,7 @@
     firefox
     google-chrome
     vscode
-    yakuake
+    kdePackages.yakuake
     (import ./utils/dolphin-versions/dolphin-versions.nix { inherit pkgs; })
   ];
   services.flatpak.enable = true;
