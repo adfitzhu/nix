@@ -29,7 +29,7 @@ sudo sh /tmp/nix/install/autoinstall.sh
 - Select the target drive from a numbered menu (e.g., `/dev/sda`).
 - Verify the right one is listed and confirm deleting the entire thing by typing yes
 - Enter a value for the swap partition size in GB. Entering 0 results in no swap.
-- Select the system configuration you want to use (e.g., `gaming`, `laptop`) from a numbered menu.
+- Select the system configuration you want to use (e.g., `generic`, `other build`) from a numbered menu.
 
 ### Step 5: Wait for the script to finish
 - The script will partition and format the drive, generate hardware config, install NixOS, 

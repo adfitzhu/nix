@@ -34,6 +34,8 @@
     syncthingtray
     firefox
     google-chrome
+    vscode
+    yakuake
     (import ./utils/dolphin-versions/dolphin-versions.nix { inherit pkgs; })
   ];
   services.flatpak.enable = true;
