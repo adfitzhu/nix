@@ -1,5 +1,10 @@
-> **Inspiration:** This project was inspired by [nixbook](https://github.com/mkellyxp/nixbook). I liked the idea of the nixbook but wanted to make my own version using KDE and some specific apps for my users' needs.
+> **Inspiration:** This project was inspired by [nixbook](https://github.com/mkellyxp/nixbook). I liked the idea of the nixbook but wanted to make my own version using BTRFS, KDE, and some specific apps for my users' needs.
 
+## Features
+- Auto setup of BTRFS filesystems at install (not disko, just a shell script)
+- Pre-configured home snapshots, and a custom dolphin context menu item to easily see different version of files and folders and restore if needed.
+- Configs for various hosts and users 
+- An initial flatpak installer to get systems up and running quickly with selectable sets of flatpaks that are easily changeable by users later through Discover.
 
 ## Automated Install Procedure
 

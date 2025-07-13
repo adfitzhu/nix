@@ -1,6 +1,9 @@
 #!/bin/sh
 # setup.sh - initial post-install setup script
 
+# Run Flatpak installer before starting Tailscale
+python3 "/usr/local/nixos/utils/install-flatpaks.py"
+
 # Start Tailscale (will prompt for auth if not already up)
 echo "Starting Tailscale..."
 sudo tailscale up
