@@ -58,7 +58,21 @@ def install_flatpaks(groups):
             print(f"Failed to install {app}", file=sys.stderr)
     print("Done.")
 
+def ensure_system_flathub():
+    import shutil
+    if not shutil.which("flatpak"):
+        print("Flatpak is not installed.", file=sys.stderr)
+        sys.exit(1)
+    # Check if flathub is present as a system remote
+    result = subprocess.run(["flatpak", "remotes", "--system"], capture_output=True, text=True)
+    if "flathub" not in result.stdout:
+        print("Adding Flathub as a system remote...")
+        subprocess.run([
+            "flatpak", "remote-add", "--if-not-exists", "flathub", "https://flathub.org/repo/flathub.flatpakrepo"
+        ], check=True)
+
 def main():
+    ensure_system_flathub()
     app = FlatpakSelector(FLATPAK_GROUPS.keys())
     app.mainloop()
     if getattr(app, 'selected', []):
