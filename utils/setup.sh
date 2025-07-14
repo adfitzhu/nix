@@ -1,6 +1,9 @@
 #!/bin/sh
 # setup.sh - initial post-install setup script
 
+# Add Flathub repo for Flatpak (user scope, just in case)
+flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
 # Run Flatpak installer before starting Tailscale
 python3 "/usr/local/nixos/utils/install-flatpaks.py"
 
