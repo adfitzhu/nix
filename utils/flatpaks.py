@@ -3,9 +3,9 @@
 
 FLATPAK_GROUPS = {
     "Basic": [
-        "org.mozilla.firefox",
+    #    "org.mozilla.firefox",
+    #    "com.google.Chrome",
         "com.microsoft.Edge",
-        "com.google.Chrome",
         "org.kde.digikam",
         "org.audacityteam.Audacity",
         "org.kde.audiotube",
@@ -14,7 +14,7 @@ FLATPAK_GROUPS = {
         "org.kde.skanpage",
         "net.epson.epsonscan2",
         "io.github.prateekmedia.appimagepool",
-        "com.nextcloud.desktopclient.nextcloud",
+     #   "com.nextcloud.desktopclient.nextcloud",
         "com.github.tchx84.Flatseal", 
     ],
     "Video Capture": [
@@ -37,7 +37,7 @@ FLATPAK_GROUPS = {
         "org.freecad.FreeCAD"
     ],
     "Coding": [
-        "com.visualstudio.code"
+    #    "com.visualstudio.code"
     ]
 
 }
