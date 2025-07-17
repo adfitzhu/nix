@@ -6,7 +6,7 @@ FLATPAK_GROUPS = {
     #    "org.mozilla.firefox",
     #    "com.google.Chrome",
         "com.microsoft.Edge",
-        "org.kde.digikam",
+        #"org.kde.digikam",
         "org.audacityteam.Audacity",
         "org.kde.audiotube",
         "org.clementine_player.Clementine",

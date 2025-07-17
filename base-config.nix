@@ -59,7 +59,7 @@
   # Global flatpak overrides - allows all apps access to home directory
   services.flatpak.overrides = {
     global = {
-      filesystems = [ "home" ];
+      Context.filesystems = [ "home" ];
     };
   };
   time.timeZone = "America/Los_Angeles";
