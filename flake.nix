@@ -6,9 +6,10 @@
     flake-utils.url = "github:numtide/flake-utils";
     home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    nix-flatpak.url = "github:gmodena/nix-flatpak"; # Add this
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }: {
+  outputs = { self, nixpkgs, home-manager, nix-flatpak, ... }: {
     nixosConfigurations = {
       alphanix = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -20,6 +21,7 @@
             };
           })
           ./base-config.nix
+          nix-flatpak.nixosModules.nix-flatpak
           ({ pkgs, ... }: {
             users.users.adam = {
               isNormalUser = true;
@@ -28,6 +30,16 @@
             environment.systemPackages = with pkgs; [
             orca-slicer
             ];
+            
+            # Flatpak packages for this host
+            services.flatpak.packages = [
+              "com.usebottles.bottles"
+              "com.heroicgameslauncher.hgl"
+              "com.discordapp.Discord"
+              "com.obsproject.Studio"
+              "com.github.tchx84.Flatseal"
+            ];
+            
             services.xserver.enable = false;
             services.displayManager = {
               sddm.enable = true;
@@ -91,6 +103,13 @@
             environment.systemPackages = with pkgs; [
 
             ];
+            
+            # Flatpak packages for this host
+            services.flatpak.packages = [
+              "com.microsoft.Edge"
+
+            ];
+            
             services.xserver.enable = false;
             services.displayManager = {
               sddm.enable = true;
@@ -105,7 +124,7 @@
               serviceConfig.Type = "oneshot";
               script = ''
                 set -euxo pipefail
-                ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --flake github:adfitzhu/nix#yactop --no-write-lock-file --impure
+                ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --refresh --flake github:adfitzhu/nix#yactop --no-write-lock-file --impure
               '';
             };
             systemd.timers.my-auto-upgrade = {
@@ -118,6 +137,7 @@
             };
           })
           home-manager.nixosModules.home-manager
+          nix-flatpak.nixosModules.nix-flatpak
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
@@ -135,6 +155,7 @@
             };
           })
           ./base-config.nix
+          nix-flatpak.nixosModules.nix-flatpak
           ({ pkgs, ... }: {
             users.users.nixos = {
               isNormalUser = true;
@@ -143,6 +164,14 @@
             environment.systemPackages = [
 
             ];
+            
+            # Flatpak packages for this host
+            services.flatpak.packages = [
+              "com.github.tchx84.Flatseal"
+              "org.mozilla.firefox"
+              "org.libreoffice.LibreOffice"
+            ];
+            
             services.xserver.enable = false;
             services.displayManager = {
               sddm.enable = true;
@@ -182,6 +211,7 @@
             };
           })
           ./base-config.nix
+          nix-flatpak.nixosModules.nix-flatpak
           ({ pkgs, ... }: {
             users.users.nixos = {
               isNormalUser = true;
@@ -190,6 +220,15 @@
             environment.systemPackages = with pkgs; [
 
             ];
+            
+            # Flatpak packages for this host
+            services.flatpak.packages = [
+              "com.github.tchx84.Flatseal"
+              "org.mozilla.firefox"
+              "org.libreoffice.LibreOffice"
+              "com.spotify.Client"
+            ];
+            
             services.xserver.enable = false;
             services.displayManager = {
               sddm.enable = true;

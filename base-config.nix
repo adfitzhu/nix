@@ -36,6 +36,7 @@
     google-chrome
     vscode
     kdePackages.yakuake
+    digikam
     (import ./utils/dolphin-versions/dolphin-versions.nix { inherit pkgs; })
   ];
   services.flatpak.enable = true;
@@ -45,6 +46,21 @@
     script = ''
       flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     '';
+  };
+
+  # Declarative Flatpak configuration (packages defined per host)
+  services.flatpak.update.auto = {
+    enable = true;
+    onCalendar = "weekly";
+  };
+
+  services.flatpak.uninstallUnmanaged = false;
+
+  # Global flatpak overrides - allows all apps access to home directory
+  services.flatpak.overrides = {
+    global = {
+      filesystems = [ "home" ];
+    };
   };
   time.timeZone = "America/Los_Angeles";
   i18n = {
