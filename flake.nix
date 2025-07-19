@@ -104,10 +104,7 @@
               obs-studio
               droidcam
               obs-studio-plugins.droidcam-obs
-              freetube
               kdePackages.skanpage
-              epsonscan2
-              kdePackages.audiotube
               audacity
               clementine
               superTuxKart
