@@ -107,6 +107,7 @@
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
+  hardware.bluetooth.enable = true;
   services.openssh.enable = true;
   services.fail2ban.enable = true;
   services.tailscale.enable = true;
