@@ -33,10 +33,16 @@
           label = "Beth's Music"; # This is the friendly name shown in the UI
 
         };
-        "pictures" = {
-          path = "/home/beth/Pictures";
-          devices = [ "server" ];
-          label = "Pictures"; # This is the friendly name shown in the UI
+        #"pictures" = {
+        #  path = "/home/beth/Pictures";
+        #  devices = [ "server" ];
+         # label = "Pictures"; # This is the friendly name shown in the UI
+
+        #};
+        "upload" = {
+        path = "/home/beth/InstantUpload";
+        devices = [ "server" ];
+        label = "Instant Upload"; # This is the friendly name shown in the UI
 
         };
       };
