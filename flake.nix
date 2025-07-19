@@ -101,7 +101,16 @@
             };
             users.groups.beth = {};
             environment.systemPackages = with pkgs; [
-
+              obs-studio
+              droidcam
+              obs-studio-plugins.droidcam-obs
+              freetube
+              kdePackages.skanpage
+              epsonscan2
+              kdePackages.audiotube
+              audacity
+              clementine
+              superTuxKart
             ];
             
             # Flatpak packages for this host
