@@ -102,6 +102,11 @@
       support32Bit = true;
     };
     pulse.enable = true;
+    extraConfig.pipewire-pulse."99-no-ducking" = {
+      "context.modules" = [
+        # This override removes the cork/ducking modules from defaults
+      ];
+    };
   };
   security.rtkit.enable = true;
   xdg.portal = {
