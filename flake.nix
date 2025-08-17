@@ -55,7 +55,12 @@
               dedicatedServer.openFirewall = true;
               localNetworkGameTransfers.openFirewall = true;
             };
-            services.sunshine.enable = true;
+            services.sunshine = {
+              enable = true;
+              capSysAdmin = true;
+              openFirewall = true;
+              settings.channels = 2;
+            };
             systemd.services.my-auto-upgrade = {
               description = "Custom NixOS auto-upgrade (host-specific)";
               serviceConfig.Type = "oneshot";
