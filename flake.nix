@@ -11,6 +11,65 @@
 
   outputs = { self, nixpkgs, home-manager, nix-flatpak, ... }: {
     nixosConfigurations = {
+      
+      generic = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./hardware-configuration.nix
+          ({ ... }: {
+            _module.args = {
+              autoUpgradeFlake = "github:adfitzhu/nix#generic";
+            };
+          })
+          ./base-config.nix
+          nix-flatpak.nixosModules.nix-flatpak
+          ({ pkgs, ... }: {
+            users.users.nixos = {
+              isNormalUser = true;
+              extraGroups = [ "networkmanager" "wheel" ];
+            };
+            environment.systemPackages = [
+
+            ];
+            
+            # Flatpak packages for this host
+            services.flatpak.packages = [
+              "com.github.tchx84.Flatseal"
+              "org.mozilla.firefox"
+              "org.libreoffice.LibreOffice"
+            ];
+            
+            services.xserver.enable = false;
+            services.displayManager = {
+              sddm.enable = true;
+              sddm.wayland.enable = true;
+              autoLogin = {
+                enable = true;
+                user = "nixos";
+              };
+            };
+            systemd.services.my-auto-upgrade = {
+              description = "Custom NixOS auto-upgrade (host-specific)";
+              serviceConfig.Type = "oneshot";
+              script = ''
+                set -euxo pipefail
+                ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --flake github:adfitzhu/nix#generic --no-write-lock-file --impure
+              '';
+            };
+            systemd.timers.my-auto-upgrade = {
+              description = "Run custom NixOS auto-upgrade weekly (host-specific)";
+              wantedBy = [ "timers.target" ];
+              timerConfig = {
+                OnCalendar = "weekly";
+                Persistent = true;
+              };
+            };
+          })
+        ];
+      };
+
+      
+      
       alphanix = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
@@ -29,6 +88,7 @@
             };
             environment.systemPackages = with pkgs; [
             orca-slicer
+            clonehero
             ];
             
             # Flatpak packages for this host
@@ -107,6 +167,7 @@
             };
             environment.systemPackages = with pkgs; [
             orca-slicer
+            clonehero
             ];
             
             # Flatpak packages for this host
@@ -169,6 +230,7 @@
             };
           })
           ./base-config.nix
+          nix-flatpak.nixosModules.nix-flatpak
           ({ pkgs, ... }: {
             networking.hostName = "yactop";
             users.users.beth = {
@@ -220,7 +282,6 @@
             };
           })
           home-manager.nixosModules.home-manager
-          nix-flatpak.nixosModules.nix-flatpak
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
@@ -228,88 +289,47 @@
           }
         ];
       };
-      generic = nixpkgs.lib.nixosSystem {
+      
+      
+      norzpc = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
           ./hardware-configuration.nix
           ({ ... }: {
             _module.args = {
-              autoUpgradeFlake = "github:adfitzhu/nix#generic";
+              autoUpgradeFlake = "github:adfitzhu/nix#norzpc";
             };
           })
           ./base-config.nix
           nix-flatpak.nixosModules.nix-flatpak
           ({ pkgs, ... }: {
-            users.users.nixos = {
-              isNormalUser = true;
-              extraGroups = [ "networkmanager" "wheel" ];
-            };
-            environment.systemPackages = [
-
-            ];
+            networking.hostName = "norzpc";
             
-            # Flatpak packages for this host
-            services.flatpak.packages = [
-              "com.github.tchx84.Flatseal"
-              "org.mozilla.firefox"
-              "org.libreoffice.LibreOffice"
-            ];
-            
-            services.xserver.enable = false;
-            services.displayManager = {
-              sddm.enable = true;
-              sddm.wayland.enable = true;
-              autoLogin = {
-                enable = true;
-                user = "nixos";
-              };
-            };
-            systemd.services.my-auto-upgrade = {
-              description = "Custom NixOS auto-upgrade (host-specific)";
-              serviceConfig.Type = "oneshot";
-              script = ''
-                set -euxo pipefail
-                ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --flake github:adfitzhu/nix#generic --no-write-lock-file --impure
-              '';
-            };
-            systemd.timers.my-auto-upgrade = {
-              description = "Run custom NixOS auto-upgrade weekly (host-specific)";
-              wantedBy = [ "timers.target" ];
-              timerConfig = {
-                OnCalendar = "weekly";
-                Persistent = true;
-              };
-            };
-          })
-        ];
-      };
-
-      laptop = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          ./hardware-configuration.nix
-          ({ ... }: {
-            _module.args = {
-              autoUpgradeFlake = "github:adfitzhu/nix#laptop";
-            };
-          })
-          ./base-config.nix
-          nix-flatpak.nixosModules.nix-flatpak
-          ({ pkgs, ... }: {
-            users.users.nixos = {
+            users.users.pat = {
               isNormalUser = true;
-              extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" ];
+              group = "pat";
+              extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" "torrance"];
             };
+            users.users.torrance = {
+              isNormalUser = true;
+              group = "torrance";
+              extraGroups = [ "networkmanager" "wheel" "vboxsf" "dialout" "audio" "video" "input" "docker" "pat"];
+            };
+            users.groups.pat = {};
+            users.groups.torrance = {};
+            
             environment.systemPackages = with pkgs; [
-
+              kdePackages.skanpage
+              audacity
+              clementine
+              superTuxKart
+              clonehero
             ];
             
             # Flatpak packages for this host
             services.flatpak.packages = [
-              "com.github.tchx84.Flatseal"
-              "org.mozilla.firefox"
-              "org.libreoffice.LibreOffice"
-              "com.spotify.Client"
+              "com.microsoft.Edge"
+
             ];
             
             services.xserver.enable = false;
@@ -318,7 +338,7 @@
               sddm.wayland.enable = true;
               autoLogin = {
                 enable = true;
-                user = "nixos";
+                user = "pat";
               };
             };
             systemd.services.my-auto-upgrade = {
@@ -326,7 +346,7 @@
               serviceConfig.Type = "oneshot";
               script = ''
                 set -euxo pipefail
-                ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --flake github:adfitzhu/nix#laptop --no-write-lock-file --impure
+                ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --upgrade --refresh --flake github:adfitzhu/nix#norzpc --no-write-lock-file --impure
               '';
             };
             systemd.timers.my-auto-upgrade = {
@@ -341,7 +361,7 @@
 
         ];
       };
-
+      
 
 
     };
