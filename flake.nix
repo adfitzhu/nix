@@ -133,8 +133,6 @@
               dedicatedServer.openFirewall = true;
               localNetworkGameTransfers.openFirewall = true;
             };
-
-            };
             systemd.services.my-auto-upgrade = {
               description = "Custom NixOS auto-upgrade (host-specific)";
               serviceConfig.Type = "oneshot";
@@ -347,5 +345,7 @@
 
 
     };
+  };
+}
   };
 }
