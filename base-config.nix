@@ -37,7 +37,7 @@ in
     python3Packages.pyqt6
     wine
     steam-run
-    syncthingtray
+    #syncthingtray
     firefox
     google-chrome
     vscode
@@ -117,7 +117,18 @@ in
   security.rtkit.enable = true;
   xdg.portal = {
     enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    # Prefer the KDE portal backend so portal file choosers look like Dolphin/KDE.
+    # Keep the GTK portal as a fallback for apps that need it.
+    # The top-level alias was removed; use the explicit kdePackages path.
+    extraPortals = [ pkgs.kdePackages.xdg-desktop-portal-kde pkgs.xdg-desktop-portal-gtk ];
+  };
+
+  # Force GTK apps (including Firefox GTK builds) to use the xdg-desktop-portal
+  # file chooser instead of the built-in GTK file chooser. Also enable
+  # Wayland support in Firefox so portal usage behaves correctly under Wayland.
+  environment.sessionVariables = {
+    GTK_USE_PORTAL = "1";
+    MOZ_ENABLE_WAYLAND = "1";
   };
   hardware.bluetooth.enable = true;
   services.openssh.enable = true;
